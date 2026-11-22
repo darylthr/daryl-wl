@@ -71,7 +71,7 @@
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 600px;
+      max-width: 780px;
       margin: 0 auto;
       height: 100vh;
       height: 100dvh;
@@ -245,7 +245,40 @@
     @supports (-moz-appearance: none) {
       .list { scrollbar-width: thin; scrollbar-color: #f4a3ab #f6ede3; }
     }
-    .list > li + li {
+    /* ---------- Category groups ---------- */
+    .group + .group { margin-top: 26px; }
+    .group-head {
+      position: sticky;
+      top: -4px; /* hug the scroll area's top edge (it has 4px padding) */
+      z-index: 1;
+      margin: 0 -4px 14px;
+      padding: 8px 4px 9px;
+      background-color: var(--paper);
+      /* dashed pixel rule under the label */
+      background-image: linear-gradient(to right, #e6d9cc 50%, transparent 50%);
+      background-size: 8px 3px;
+      background-repeat: repeat-x;
+      background-position: bottom left;
+      font-family: "Silkscreen", monospace;
+      font-weight: 400;
+      font-size: 13px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .group-name {
+      color: var(--ink);
+      background: #dff0e4;
+      padding: 4px 7px;
+      box-shadow:
+        0 -2px 0 0 var(--ink), 0 2px 0 0 var(--ink),
+        -2px 0 0 0 var(--ink), 2px 0 0 0 var(--ink);
+      margin-left: 2px;
+    }
+    .group-count { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .group-items { list-style: none; margin: 0; padding: 0; }
+    .group-items > li + li {
       margin-top: 18px;
       padding-top: 18px;
       background-image: linear-gradient(to right, #e6d9cc 50%, transparent 50%);
@@ -294,6 +327,7 @@
       text-wrap: balance;
     }
     .name svg { display: inline-block; margin-left: 5px; vertical-align: 1px; }
+    .name .fav svg { margin: 0 7px 0 0; vertical-align: -1px; }
     .desc {
       margin: 3px 0 0;
       font-size: 14px;
@@ -436,12 +470,18 @@
        currency     "MXN", "USD", etc. (opcional, por defecto MXN)
        image        URL de una imagen (opcional, se pixelea sola)
        link         URL de la tienda (opcional, hace la fila clickeable)
+       category     grupo donde aparece (ver CATEGORIES abajo)
+       favorite     true si es de los preferidos (sale primero, con corazón)
 
        Precios en pesos mexicanos (nov 2026, aproximados).
        Tiendas oficiales en USD convertidas a ~18.5 MXN por dólar.
        ========================================================= */
+    // orden de los grupos en la página
+    const CATEGORIES = ["Home server", "Teclados", "Tecnología", "Escritorio", "Casa", "Perfumes", "Relojes", "Libros", "Música", "Coleccionables", "Vanidades"];
+
     const WISHLIST = [
       {
+        category: "Teclados",
         name: "Wooting 60HE v2",
         description: "Teclado magnético de alta gama.",
         price: 3336, // tienda oficial: US$179.99 (versión de plástico)
@@ -449,6 +489,7 @@
         image: "https://wooting-website.ams3.cdn.digitaloceanspaces.com/products/keyboards/60HEv2/60he-v2-og.webp",
       },
       {
+        category: "Teclados",
         name: "MCHOSE Ace 68 GT",
         description: "Teclado magnético 65% de aluminio, switches Hall Effect.",
         price: 2762, // tienda oficial: US$149
@@ -456,6 +497,7 @@
         image: "https://cdn.shopify.com/s/files/1/0846/5727/5175/files/mchose-official-aero-silver-royal-steed-magnetic-switch-mchose-ace-68-gt-full-aluminum-esports-hall-effect-keyboard-1254972129.jpg?v=1787124013&width=600",
       },
       {
+        category: "Teclados",
         name: "ATK 68 RX",
         description: "Teclado magnético Hall Effect 65%, 8K Hz.",
         price: 1668, // tienda oficial: US$89.98 (a veces en oferta a US$67.49)
@@ -463,6 +505,7 @@
         image: "https://cdn.shopify.com/s/files/1/0691/4942/5882/files/0a880f505c69d7e7d07d0e5117ab8804.jpg?v=1753930212&width=600",
       },
       {
+        category: "Escritorio",
         name: "Mimoglad Silla de Oficina",
         description: "Silla ergonómica con soporte lumbar ajustable.",
         price: 3199.99, // Amazon MX
@@ -470,6 +513,7 @@
         image: "https://m.media-amazon.com/images/I/81ksX83QXpL._AC_SL500_.jpg",
       },
       {
+        category: "Escritorio",
         name: "SONGMICS Silla de Oficina Ergonómica",
         description: "Silla de malla transpirable con reposacabezas.",
         price: 2699.99, // Amazon MX, malla de doble capa (OBN041)
@@ -477,6 +521,7 @@
         image: "https://m.media-amazon.com/images/I/71ldWGU1xDL._AC_SL500_.jpg",
       },
       {
+        category: "Home server",
         name: "Disco Duro Interno WD Red Plus 4TB",
         description: "Disco duro para NAS de 4 TB, 5400 rpm.",
         price: 2520, // Mercado Libre, WD40EFPX nuevo
@@ -484,6 +529,7 @@
         image: "https://m.media-amazon.com/images/I/81wgF5tXOJL._SL500_.jpg",
       },
       {
+        category: "Tecnología",
         name: "Sony WH-1000XM5",
         description: "Audífonos inalámbricos con cancelación de ruido.",
         price: 169.99, // Best Buy US, color negro
@@ -492,6 +538,7 @@
         image: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6505/6505727_sd.jpg;maxHeight=500;maxWidth=500?format=webp",
       },
       {
+        category: "Música",
         name: "Vinilo C418 – Minecraft Volume Alpha",
         description: "Soundtrack original de Minecraft, el de la portada del bloque de pasto. Vinilo verde transparente.",
         price: 599, // Amazon MX, edición estándar; ~$535–651 según vendedor (sin confirmar)
@@ -499,6 +546,7 @@
         image: "https://m.media-amazon.com/images/I/712H89wP0xL._AC_SL500_.jpg",
       },
       {
+        category: "Música",
         name: "Vinilo AURORA – What Happened to the Heart?",
         description: "Álbum de AURORA en vinilo, 2 discos.",
         price: 777.01, // Amazon MX
@@ -506,6 +554,7 @@
         image: "https://m.media-amazon.com/images/I/61SUNQBJchL._AC_SL500_.jpg",
       },
       {
+        category: "Tecnología",
         name: "Kindle Paperwhite (16 GB)",
         description: "Lector de libros de 7\" con luz cálida. O, en su lugar, el iPad mini.",
         price: 3195, // Mercado Libre, 12.ª gen (2024); Amazon MX $3,999
@@ -513,6 +562,7 @@
         image: "https://m.media-amazon.com/images/I/51WeXuqsZyL._AC_SL500_.jpg",
       },
       {
+        category: "Tecnología",
         name: "iPad mini 6.ª gen (A15, 64 GB, Wi-Fi)",
         description: "Tablet de 8.3\". O, en su lugar, el Kindle Paperwhite.",
         price: 449.9, // Best Buy US, Space Gray (sin confirmar; otros colores ~$450–495)
@@ -521,12 +571,14 @@
         image: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6dadca9c-9173-4773-908e-7b113c5cfd14.jpg;maxHeight=500;maxWidth=500?format=webp",
       },
       {
+        category: "Casa",
         name: "Librero moderno de 6 niveles (negro)",
         description: "Librero de 180 × 60 × 24 cm, Simple Hogar.",
         price: 1579, // Mercado Libre (sin confirmar; ~$1,579–1,589 en oferta)
         link: "https://articulo.mercadolibre.com.mx/MLM-2365858577-simple-librero-perfecto-librero-modernos-6-capas-1802460cm-_JM?attributes=COLOR_SECONDARY_COLOR%3ATmVncm8%3D&quantity=1&picker=true&searchVariation=188881741365",
       },
       {
+        category: "Tecnología",
         name: "Samsung QLED 4K Q60D 50\" (o similar)",
         description: "Puede ser cualquier televisión, mientras tenga buena pantalla. Esta es una referencia.",
         price: 9999, // Mercado Libre, QN50Q60DAFXZX (sin confirmar)
@@ -534,6 +586,7 @@
         image: "https://m.media-amazon.com/images/I/61muqHtz11L._AC_SL500_.jpg",
       },
       {
+        category: "Perfumes",
         name: "Jean Paul Gaultier Le Male Elixir Absolu",
         description: "Parfum intense para hombre, 125 ml.",
         price: 2168.99, // Amazon MX
@@ -541,6 +594,7 @@
         image: "https://m.media-amazon.com/images/I/61rirZxMFjL._AC_SL500_.jpg",
       },
       {
+        category: "Perfumes",
         name: "Azzaro The Most Wanted Parfum",
         description: "Perfume para hombre especiado, dulce y amaderado, 100 ml.",
         price: 1699, // Amazon MX
@@ -548,6 +602,7 @@
         image: "https://m.media-amazon.com/images/I/61nkCltKCaL._AC_SL500_.jpg",
       },
       {
+        category: "Perfumes",
         name: "Afnan Supremacy Collector's Edition",
         description: "Eau de parfum para hombre, 100 ml.",
         price: 1111.17, // Amazon MX
@@ -555,6 +610,7 @@
         image: "https://m.media-amazon.com/images/I/71ee5OdVIlL._AC_SL500_.jpg",
       },
       {
+        category: "Vanidades",
         name: "Maleta deportiva PUMA teamGOAL (chica)",
         description: "Bolsa para entrenamiento y fútbol, color negro.",
         price: 749, // Amazon MX
@@ -564,46 +620,222 @@
 
       /* ---- Kit homelab: piezas para armar un servidor en casa ---- */
       {
-        name: "Homelab · Rack Tecmojo 6U de 10\"",
+        category: "Home server",
+        name: "Rack Tecmojo 6U de 10\"",
         description: "Mini rack de 10\" para montar el mini servidor, el switch y el router.",
         price: 1411.25, // Amazon MX
         link: "https://www.amazon.com.mx/dp/B0F4JZ9YJW",
         image: "https://m.media-amazon.com/images/I/71Hkz-ZBnlL._AC_SL500_.jpg",
       },
       {
-        name: "Homelab · Mini PC HP ProDesk 600 G5",
+        category: "Home server",
+        name: "Mini PC HP ProDesk 600 G5",
         description: "Reacondicionada: i5 9.ª gen, 16 GB RAM, 256 GB SSD. Puede ser usada o un modelo parecido (Lenovo Tiny, Dell Micro).",
         price: 4877.81, // Amazon MX (usadas en Mercado Libre ~$3,600–4,000)
         link: "https://www.amazon.com.mx/dp/B0H6BW54RR",
         image: "https://m.media-amazon.com/images/I/619YHPQNLwL._AC_SL500_.jpg",
       },
       {
-        name: "Homelab · Gabinete DAS CENMATE de 2 bahías",
+        category: "Home server",
+        name: "Gabinete DAS CENMATE de 2 bahías",
         description: "Caja USB-C de 10 Gbps para 2 discos de 3.5\" (va con el WD Red Plus). Se conecta a la mini PC, que hace de NAS. También sirve un TerraMaster D2-320.",
         price: 1991.39, // Amazon MX
         link: "https://www.amazon.com.mx/dp/B0H7HYPY6J",
         image: "https://m.media-amazon.com/images/I/61zyLs5EyGL._AC_SL500_.jpg",
       },
       {
-        name: "Homelab · Router TP-Link Archer AX53",
+        category: "Home server",
+        name: "Router TP-Link Archer AX53",
         description: "Router WiFi 6 AX3000 con 4 puertos LAN gigabit.",
         price: 818.18, // Amazon MX
         link: "https://www.amazon.com.mx/dp/B09V3JG7JL",
         image: "https://m.media-amazon.com/images/I/61OUgEhGBNL._AC_SL500_.jpg",
       },
       {
-        name: "Homelab · Switch TP-Link TL-SG105E",
+        category: "Home server",
+        name: "Switch TP-Link TL-SG105E",
         description: "Switch gigabit de 5 puertos administrable (VLAN, QoS).",
         price: 401.58, // Amazon MX
         link: "https://www.amazon.com.mx/dp/B00N0OHEMA",
         image: "https://m.media-amazon.com/images/I/81WlkTeA3SL._AC_SL500_.jpg",
       },
       {
-        name: "Homelab · Cables Ethernet Cat6 (10 × 30 cm)",
+        category: "Home server",
+        name: "Cables Ethernet Cat6 (10 × 30 cm)",
         description: "Intellinet, cables cortos y delgados para conectar todo dentro del rack.",
         price: 305, // Amazon MX
         link: "https://www.amazon.com.mx/dp/B0CST99VD6",
         image: "https://m.media-amazon.com/images/I/71MSxMeycpL._SL500_.jpg",
+      },
+
+      /* ---- Relojes ---- */
+      {
+        category: "Relojes",
+        favorite: true,
+        name: "Casio A158WA-1 (plateado)",
+        description: "Reloj digital clásico con alarma, cronómetro, luz y batería de 7 años.",
+        price: 649, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B000GAYQJ0",
+        image: "https://m.media-amazon.com/images/I/719bhXz4vvL._AC_SL500_.jpg",
+      },
+
+      /* ---- Perfumes ---- */
+      {
+        category: "Perfumes",
+        favorite: true,
+        name: "Afnan Lynked Freedom Black",
+        description: "Eau de Parfum, 100 ml.",
+        price: 1151, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B0FW4HMWYF",
+        image: "https://m.media-amazon.com/images/I/41O3in2fubL._AC_SL500_.jpg",
+      },
+      {
+        category: "Perfumes",
+        name: "Lattafa Khamrah",
+        description: "Eau de Parfum, 100 ml.",
+        price: 835, // Amazon MX (oferta más barata con envío por Amazon)
+        link: "https://www.amazon.com.mx/dp/B0B92Y18GT",
+        image: "https://m.media-amazon.com/images/I/61lIaaNDDqL._AC_SL500_.jpg",
+      },
+      {
+        category: "Perfumes",
+        name: "Armaf Club de Nuit Intense Man",
+        description: "Eau de Parfum, 200 ml.",
+        price: 1242, // Amazon MX (oferta más barata)
+        link: "https://www.amazon.com.mx/dp/B084D1N7JJ",
+        image: "https://m.media-amazon.com/images/I/519Xzhfah6L._AC_SL500_.jpg",
+      },
+      {
+        category: "Perfumes",
+        name: "Rasasi Hawas Ice",
+        description: "Eau de Parfum, 100 ml.",
+        price: 849, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B0CKM2SSK3",
+        image: "https://m.media-amazon.com/images/I/71DfESbdC8L._AC_SL500_.jpg",
+      },
+      {
+        category: "Perfumes",
+        name: "Armaf Infinity Silver",
+        description: "Eau de Parfum, 105 ml.",
+        price: 1457.47, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B0DQP3ZNY6",
+        image: "https://m.media-amazon.com/images/I/61h0ydZ9zTL._AC_SL500_.jpg",
+      },
+      {
+        category: "Perfumes",
+        name: "Gisada Ambassador Men",
+        description: "Eau de Parfum, 100 ml.",
+        price: 2245, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B07YBGHXZF",
+        image: "https://m.media-amazon.com/images/I/61qtAeYdFAL._AC_SL500_.jpg",
+      },
+
+      /* ---- Libros (en inglés, pasta blanda) ---- */
+      {
+        category: "Libros",
+        name: "Designing Data-Intensive Applications",
+        description: "Martin Kleppmann.",
+        price: 1400, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/1449373321",
+        image: "https://m.media-amazon.com/images/I/91YfNb49PLL._SL500_.jpg",
+      },
+      {
+        category: "Libros",
+        name: "Software Architecture: The Hard Parts",
+        description: "Neal Ford, Mark Richards y otros.",
+        price: 885.57, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/1492086894",
+        image: "https://m.media-amazon.com/images/I/81sdcxLtlwL._SL500_.jpg",
+      },
+      {
+        category: "Libros",
+        name: "System Design Interview – An Insider's Guide",
+        description: "Alex Xu.",
+        price: 813.63, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B08CMF2CQF",
+        image: "https://m.media-amazon.com/images/I/51vZ6t5W4gL._SL500_.jpg",
+      },
+      {
+        category: "Libros",
+        name: "Clean Code",
+        description: "Robert C. Martin.",
+        price: 776.66, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/0132350882",
+        image: "https://m.media-amazon.com/images/I/71nj3JM-igL._SL500_.jpg",
+      },
+      {
+        category: "Libros",
+        name: "Cracking the Coding Interview",
+        description: "Gayle Laakmann McDowell, 189 problemas resueltos.",
+        price: 706.69, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/0984782850",
+        image: "https://m.media-amazon.com/images/I/61mIq2iJUXL._SL500_.jpg",
+      },
+      {
+        category: "Libros",
+        name: "The Algebra of Happiness",
+        description: "Scott Galloway.",
+        price: 532.19, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/0593084195",
+        image: "https://m.media-amazon.com/images/I/71E42qS9-lL._SL500_.jpg",
+      },
+      {
+        category: "Libros",
+        name: "How to Solve It",
+        description: "George Pólya.",
+        price: 319.6, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/069116407X",
+        image: "https://m.media-amazon.com/images/I/81IYui9fahL._SL500_.jpg",
+      },
+
+      /* ---- Casa, setup y otros ---- */
+      {
+        category: "Casa",
+        name: "Frigobar Hisense 3.1 ft³ (gris)",
+        description: "Frigobar silencioso con termostato ajustable, cabe una botella de 2 L.",
+        price: 3789, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B0CW83NF8H",
+        image: "https://m.media-amazon.com/images/I/81mzvJglDSL._AC_SL500_.jpg",
+      },
+      {
+        category: "Tecnología",
+        name: "Barra de sonido Hisense HS2100",
+        description: "2.1 canales, 240 W, con subwoofer, HDMI eARC y Bluetooth.",
+        price: 2386.66, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B0CCRDYSNS",
+        image: "https://m.media-amazon.com/images/I/61BSWXhAMgL._AC_SL500_.jpg",
+      },
+      {
+        category: "Escritorio",
+        name: "Brazo para micrófono VIJIM LS26",
+        description: "Brazo de aluminio de perfil bajo. Ahora aparece agotado en Amazon.",
+        price: 498.99, // Amazon MX (último precio; agotado)
+        link: "https://www.amazon.com.mx/dp/B0BMF56F8C",
+        image: "https://m.media-amazon.com/images/I/61IS8v84q1L._AC_SL500_.jpg",
+      },
+      {
+        category: "Música",
+        name: "Teclado Alesis Melody 61 MK4",
+        description: "Piano eléctrico de 61 teclas con soporte, banco y audífonos.",
+        price: 2183.16, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B0D2D242BG",
+        image: "https://m.media-amazon.com/images/I/81f6ztg80AL._AC_SL500_.jpg",
+      },
+      {
+        category: "Coleccionables",
+        name: "Peluche Minecraft Dennis el lobo",
+        description: "Mattel, de la película de Minecraft, con sonidos.",
+        price: 809, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B0DC1661N8",
+        image: "https://m.media-amazon.com/images/I/81I0RjGjLVL._AC_SL500_.jpg",
+      },
+      {
+        category: "Coleccionables",
+        name: "Funko Pop! Batman (1989)",
+        description: "Edición Batman 80 aniversario.",
+        price: 602.19, // Amazon MX
+        link: "https://www.amazon.com.mx/dp/B07KPT4L3N",
+        image: "https://m.media-amazon.com/images/I/618kVXoa8OL._AC_SL500_.jpg",
       },
     ];
     /* ========================================================= */
@@ -1730,6 +1962,7 @@
 
     /* ---------- List ---------- */
     const thumbGift = svgSprite(ROWS.gift, { px: 3 });
+    const heartSvg = svgSprite([".RR.RR.", "RWRRRRR", "RRRRRRR", ".RRRRR.", "..RRR..", "...R..."], { px: 2 });
     const arrowSvg = svgSprite(["XXX.", "..X.", ".X.X", "X..."], { px: 2, outline: false, palette: { X: "#9a8aa3" } });
     const chevron = (dir) =>
       svgSprite(dir === "desc" ? ["XXXXX", ".XXX.", "..X.."] : ["..X..", ".XXX.", "XXXXX"], { px: 2, outline: false, palette: { X: INK } });
@@ -1754,31 +1987,45 @@
     function renderList() {
       const list = $("list");
       const dir = $("sort").dataset.dir === "asc" ? 1 : -1;
-      const items = [...WISHLIST].sort((a, b) => (inMXN(a) - inMXN(b)) * dir);
+      // favorites first, then by price
+      const items = [...WISHLIST].sort((a, b) => (!!b.favorite - !!a.favorite) || (inMXN(a) - inMXN(b)) * dir);
       if (!items.length) {
         list.innerHTML = `<li class="empty">La lista está vacía… por ahora.</li>`;
         return;
       }
-      list.innerHTML = items
-        .map((it) => {
-          const tag = it.link ? "a" : "div";
-          const attrs = it.link ? ` href="${esc(it.link)}" target="_blank" rel="noopener noreferrer"` : "";
-          const img = it.image ? `<canvas width="44" height="44" data-src="${esc(it.image)}"></canvas>` : thumbGift;
-          return `<li>
-            <${tag} class="item"${attrs}>
-              <div class="thumb">${img}</div>
-              <div class="info">
-                <div>
-                  <p class="name">${esc(it.name)}${it.link ? arrowSvg : ""}</p>
-                  ${it.description ? `<p class="desc">${esc(it.description)}</p>` : ""}
-                </div>
-                <p class="price">${money(it.price, it.currency || "MXN")}</p>
-              </div>
-            </${tag}>
-          </li>`;
-        })
+      // group by category, in CATEGORIES order; unknown categories go last
+      const groups = new Map(CATEGORIES.map((c) => [c, []]));
+      for (const it of items) {
+        const c = it.category || "Otros";
+        if (!groups.has(c)) groups.set(c, []);
+        groups.get(c).push(it);
+      }
+      list.innerHTML = [...groups]
+        .filter(([, its]) => its.length)
+        .map(([cat, its]) => `<li class="group">
+          <h2 class="group-head"><span class="group-name">${esc(cat)}</span><span class="group-count">${its.length}</span></h2>
+          <ul class="group-items">${its.map(renderItem).join("")}</ul>
+        </li>`)
         .join("");
       list.querySelectorAll("canvas[data-src]").forEach((c) => pixelate(c, c.dataset.src));
+    }
+
+    function renderItem(it) {
+      const tag = it.link ? "a" : "div";
+      const attrs = it.link ? ` href="${esc(it.link)}" target="_blank" rel="noopener noreferrer"` : "";
+      const img = it.image ? `<canvas width="44" height="44" data-src="${esc(it.image)}"></canvas>` : thumbGift;
+      return `<li>
+        <${tag} class="item"${attrs}>
+          <div class="thumb">${img}</div>
+          <div class="info">
+            <div>
+              <p class="name">${it.favorite ? `<span class="fav" title="Favorito">${heartSvg}<span class="sr-only">Favorito: </span></span>` : ""}${esc(it.name)}${it.link ? arrowSvg : ""}</p>
+              ${it.description ? `<p class="desc">${esc(it.description)}</p>` : ""}
+            </div>
+            <p class="price">${money(it.price, it.currency || "MXN")}</p>
+          </div>
+        </${tag}>
+      </li>`;
     }
 
     function renderSort() {
