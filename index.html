@@ -350,8 +350,14 @@
     .empty { color: var(--muted); font-size: 14px; }
 
     @media (max-width: 480px) {
-      main { padding: 110px 20px 84px; } /* bottom: clear the music button */
-      .card { padding: 50px 18px 16px; }
+      /* phones: give the list as much height as possible */
+      main { padding: 78px 14px 14px; } /* top: room for the cat + music button */
+      .card { padding: 46px 16px 12px; }
+      .sort { margin-top: 12px; }
+      .list { margin-top: 14px; }
+      .group + .group { margin-top: 20px; }
+      .group-head { margin-bottom: 12px; }
+      .group-items > li + li { margin-top: 14px; padding-top: 14px; }
       .item { grid-template-columns: 66px minmax(0, 1fr); gap: 16px; }
       .thumb { width: 60px; height: 60px; }
       .thumb svg { width: 39px; height: auto; }
@@ -374,6 +380,10 @@
       -webkit-tap-highlight-color: transparent;
     }
     .music svg { display: block; }
+    @media (max-width: 480px) {
+      /* phones: move it to the sky above the card so it never covers the list */
+      .music { top: 16px; left: 16px; right: auto; bottom: auto; padding: 7px 8px; }
+    }
     .music:focus-visible { outline: 3px dashed var(--ink); outline-offset: 6px; }
 
     .sr-only {
