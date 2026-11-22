@@ -1,0 +1,2014 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daryl's wishlist</title>
+  <meta name="description" content="Lo que Daryl quiere para Navidad." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500&family=Silkscreen&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #4a3b52;
+      --text: #4a3b52;
+      --muted: #9a8aa3;
+      --paper: #fffaf2;
+      --paper-2: #f6ede3;
+      --shade: rgba(36, 30, 60, 0.18);
+      --b: 4px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+
+    body {
+      color: var(--text);
+      font-family: "Pixelify Sans", monospace;
+      font-size: 16px;
+      line-height: 1.3;
+      -webkit-font-smoothing: none;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden; /* the page stays put; only the list scrolls */
+      background: #a7c8f0;
+    }
+
+    /* ---------- Animated pixel scene ---------- */
+    #scene {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      display: block;
+      image-rendering: pixelated;
+      touch-action: pan-y;
+    }
+    .fx {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 30;
+    }
+    .fx > * { position: absolute; top: 0; left: 0; line-height: 0; }
+
+    /* ---------- Pixel box (notched corners) ---------- */
+    .px-box {
+      background: var(--paper);
+      box-shadow:
+        0 calc(var(--b) * -1) 0 0 var(--ink),
+        0 var(--b) 0 0 var(--ink),
+        calc(var(--b) * -1) 0 0 0 var(--ink),
+        var(--b) 0 0 0 var(--ink),
+        var(--b) calc(var(--b) * 2) 0 0 var(--shade),
+        calc(var(--b) * 2) var(--b) 0 0 var(--shade);
+    }
+
+    /* ---------- Layout ---------- */
+    main {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      height: 100vh;
+      height: 100dvh;
+      padding: 120px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      pointer-events: none; /* clicks fall through to the scene */
+    }
+    .book {
+      position: relative;
+      pointer-events: auto;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .card {
+      position: relative;
+      z-index: 1;
+      padding: 52px 24px 20px;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .card header { flex: none; }
+
+    /* snow on the card + string lights */
+    .snowcap {
+      position: absolute;
+      top: -12px;
+      left: -8px;
+      line-height: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .garland {
+      position: absolute;
+      top: 8px;
+      left: 0;
+      right: 0;
+      line-height: 0;
+      z-index: 1;
+    }
+    .garland svg { display: block; margin: 0 auto; }
+    .bulb { cursor: pointer; }
+    .bulb .glass { transition: fill 150ms ease-out; }
+    .bulb.off .glass { fill: #ddd3c8; }
+    .bulb.off .shine { fill: #ebe3da; }
+
+    /* ---------- Tomo cat, peeking over the card like a book ---------- */
+    .cat {
+      position: absolute;
+      right: 44px;
+      top: -54px;
+      z-index: 0;
+      appearance: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      background: none;
+      cursor: pointer;
+      line-height: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cat svg { display: block; }
+    .cat-sprite { display: block; }
+    .cat-bang {
+      position: absolute;
+      left: calc(100% - 8px);
+      top: -16px;
+      opacity: 0;
+    }
+    .cat.alert .cat-bang { opacity: 1; }
+    .cat:focus-visible { outline: 3px dashed var(--ink); outline-offset: 4px; }
+
+    /* ---------- Header ---------- */
+    h1 {
+      font-family: "Silkscreen", monospace;
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 1.2;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h1 svg { display: block; }
+    .countdown {
+      appearance: none;
+      border: 0;
+      background: none;
+      padding: 0;
+      margin: 6px 0 0;
+      font: inherit;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: text;
+      font-variant-numeric: tabular-nums;
+      display: block;
+      text-align: left;
+    }
+
+    .sort {
+      appearance: none;
+      border: 0;
+      margin: 18px 0 0 3px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--ink);
+      padding: 5px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      background: #fff;
+      box-shadow:
+        0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink),
+        -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sort svg { display: block; }
+    .sort:focus-visible { outline: 3px dashed var(--ink); outline-offset: 6px; }
+
+    /* ---------- List ---------- */
+    .list {
+      list-style: none;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      /* room for the thumbnails' pixel borders and the scrollbar */
+      margin: 20px -14px 0 -4px;
+      padding: 4px 14px 10px 4px;
+      /* dithered top divider so the scroll area reads as its own panel */
+      border-top: 3px dashed #e6d9cc;
+    }
+
+    /* ---------- Pixel scrollbar ---------- */
+    /* Chromium / Safari: a candy-cane thumb in a notched pixel frame */
+    .list::-webkit-scrollbar { width: 14px; }
+    .list::-webkit-scrollbar-track {
+      background:
+        linear-gradient(var(--ink), var(--ink)) center / 2px 100% no-repeat,
+        #f6ede3;
+      border-left: 2px solid transparent;
+      border-right: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    .list::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      background-color: var(--ink);
+      background-image:
+        repeating-linear-gradient(135deg, #f4a3ab 0 4px, #ffffff 4px 8px);
+      box-shadow:
+        inset 0 0 0 2px var(--ink),
+        inset 3px 3px 0 0 rgba(255, 255, 255, 0.55);
+      min-height: 32px;
+    }
+    .list::-webkit-scrollbar-thumb:hover {
+      background-image:
+        repeating-linear-gradient(135deg, #e2848f 0 4px, #ffffff 4px 8px);
+    }
+    .list::-webkit-scrollbar-thumb:active {
+      background-image:
+        repeating-linear-gradient(135deg, #c96c7a 0 4px, #fbd3cb 4px 8px);
+    }
+    .list::-webkit-scrollbar-button { display: none; }
+    /* Firefox only supports colors */
+    @supports (-moz-appearance: none) {
+      .list { scrollbar-width: thin; scrollbar-color: #f4a3ab #f6ede3; }
+    }
+    .list > li + li {
+      margin-top: 18px;
+      padding-top: 18px;
+      background-image: linear-gradient(to right, #e6d9cc 50%, transparent 50%);
+      background-size: 8px 3px;
+      background-repeat: repeat-x;
+      background-position: top left;
+    }
+    .item {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 20px;
+      align-items: center;
+      color: inherit;
+      text-decoration: none;
+    }
+    .thumb {
+      margin: 3px;
+      width: 74px;
+      height: 74px;
+      background: var(--paper-2);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      box-shadow:
+        0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink),
+        -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+    }
+    .thumb canvas {
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      display: block;
+    }
+    .thumb svg { display: block; }
+    .info {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      min-width: 0;
+    }
+    .name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      text-wrap: balance;
+    }
+    .name svg { display: inline-block; margin-left: 5px; vertical-align: 1px; }
+    .desc {
+      margin: 3px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      text-wrap: pretty;
+    }
+    .price {
+      margin: 0;
+      font-size: 15px;
+      white-space: nowrap;
+      color: var(--ink);
+      background: #fde2e5;
+      padding: 1px 6px;
+    }
+    .empty { color: var(--muted); font-size: 14px; }
+
+    @media (max-width: 480px) {
+      main { padding: 110px 20px 84px; } /* bottom: clear the music button */
+      .card { padding: 50px 18px 16px; }
+      .item { grid-template-columns: 66px 1fr; gap: 16px; }
+      .thumb { width: 60px; height: 60px; }
+      .thumb svg { width: 39px; height: auto; }
+      .info { flex-direction: column; gap: 8px; }
+      .cat { right: 28px; }
+    }
+
+    /* ---------- Music toggle ---------- */
+    .music {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 20;
+      appearance: none;
+      border: 0;
+      padding: 9px 10px;
+      cursor: pointer;
+      line-height: 0;
+      --b: 3px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .music svg { display: block; }
+    .music:focus-visible { outline: 3px dashed var(--ink); outline-offset: 6px; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ---------- Hover (pointer devices only) ---------- */
+    @media (hover: hover) {
+      .sort:hover { background: #fdf3f5; }
+      a.item:hover .name { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+      .cat:hover .cat-bang { opacity: 1; }
+      .music:hover { background: #fdf3f5; }
+    }
+
+    /* ---------- Motion (only when allowed) ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      .cat-bang {
+        transition-property: opacity;
+        transition-duration: 150ms;
+        transition-timing-function: ease-out;
+      }
+      .cat, .sort {
+        transition-property: scale, translate;
+        transition-duration: 150ms;
+        transition-timing-function: ease-out;
+      }
+      .sort:active, .music:active { scale: 0.96; }
+      .music { transition-property: scale; transition-duration: 150ms; transition-timing-function: ease-out; }
+      .music.on .wa { animation: twinkle 1s steps(1) infinite; }
+      .music.on .wb { animation: twinkle 1s steps(1) 0.5s infinite; }
+      @media (hover: hover) {
+        .cat:hover { translate: 0 -6px; }
+      }
+      .bulb.tw-a .glass { animation: twinkle 1.6s steps(1) infinite; }
+      .bulb.tw-b .glass { animation: twinkle 1.6s steps(1) 0.8s infinite; }
+      .bulb.off .glass { animation: none; }
+
+      .enter {
+        animation: enter 300ms ease-out both;
+        animation-delay: calc(var(--i, 0) * 100ms);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .enter { animation: fade 300ms ease-out both; }
+    }
+
+    @keyframes twinkle { 0% { opacity: 1; } 50% { opacity: 0.45; } }
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="fx" id="fx" aria-hidden="true"></div>
+
+  <main>
+    <div class="book enter">
+      <button class="cat" id="cat" type="button" aria-label="Gato lector">
+        <span class="cat-bang" id="cat-bang"></span>
+        <span class="cat-sprite" id="cat-sprite"></span>
+      </button>
+
+      <section class="card px-box" id="card">
+        <div class="snowcap" id="snowcap" aria-hidden="true"></div>
+        <div class="garland" id="garland"></div>
+
+        <header>
+          <h1>Daryl's wishlist <span id="holly" aria-hidden="true"></span></h1>
+          <button class="countdown" id="countdown" type="button"></button>
+          <button class="sort" id="sort" type="button" data-dir="desc" aria-label="Ordenar por precio: de mayor a menor">
+            <span id="sort-label">High to low</span>
+            <span id="sort-icon"></span>
+          </button>
+        </header>
+
+        <ul class="list" id="list"></ul>
+      </section>
+    </div>
+  </main>
+
+  <button class="music px-box" id="music" type="button" aria-label="Música navideña" aria-pressed="false"></button>
+
+  <script>
+    /* =========================================================
+       ✏️  TU LISTA — edita solo esta parte
+       ---------------------------------------------------------
+       name         nombre del regalo
+       description  una línea corta
+       price        número (sin $), se usa para ordenar
+       currency     "MXN", "USD", etc. (opcional, por defecto MXN)
+       image        URL de una imagen (opcional, se pixelea sola)
+       link         URL de la tienda (opcional, hace la fila clickeable)
+
+       Precios en pesos mexicanos (nov 2026, aproximados).
+       Tiendas oficiales en USD convertidas a ~18.5 MXN por dólar.
+       ========================================================= */
+    const WISHLIST = [
+      {
+        name: "Wooting 60HE v2",
+        description: "Teclado magnético de alta gama.",
+        price: 3336, // tienda oficial: US$179.99 (versión de plástico)
+        link: "https://wooting.io/wooting-60he-v2",
+        image: "https://wooting-website.ams3.cdn.digitaloceanspaces.com/products/keyboards/60HEv2/60he-v2-og.webp",
+      },
+      {
+        name: "MCHOSE Ace 68 GT",
+        description: "Teclado magnético 65% de aluminio, switches Hall Effect.",
+        price: 2762, // tienda oficial: US$149
+        link: "https://www.mchose.store/pages/ace-68-gt",
+        image: "https://cdn.shopify.com/s/files/1/0846/5727/5175/files/mchose-official-aero-silver-royal-steed-magnetic-switch-mchose-ace-68-gt-full-aluminum-esports-hall-effect-keyboard-1254972129.jpg?v=1787124013&width=600",
+      },
+      {
+        name: "ATK 68 RX",
+        description: "Teclado magnético Hall Effect 65%, 8K Hz.",
+        price: 1668, // tienda oficial: US$89.98 (a veces en oferta a US$67.49)
+        link: "https://www.atk.store/products/atk-68-rx-esports-hall-effect-keyboard",
+        image: "https://cdn.shopify.com/s/files/1/0691/4942/5882/files/0a880f505c69d7e7d07d0e5117ab8804.jpg?v=1753930212&width=600",
+      },
+      {
+        name: "Mimoglad Silla de Oficina",
+        description: "Silla ergonómica con soporte lumbar ajustable.",
+        price: 3199.99, // Amazon MX
+        link: "https://www.amazon.com.mx/Mimoglad-escritorio-ergon%C3%B3mica-reposacabezas-reposabrazos/dp/B0HDP5D34J",
+        image: "https://m.media-amazon.com/images/I/81ksX83QXpL._AC_SL500_.jpg",
+      },
+      {
+        name: "SONGMICS Silla de Oficina Ergonómica",
+        description: "Silla de malla transpirable con reposacabezas.",
+        price: 2699.99, // Amazon MX, malla de doble capa (OBN041)
+        link: "https://www.amazon.com.mx/SONGMICS-Ergon%C3%B3mica-Reposabrazos-Reposacabezas-Ajustables/dp/B0DZFTSZVX",
+        image: "https://m.media-amazon.com/images/I/71ldWGU1xDL._AC_SL500_.jpg",
+      },
+      {
+        name: "Disco Duro Interno WD Red Plus 4TB",
+        description: "Disco duro para NAS de 4 TB, 5400 rpm.",
+        price: 2520, // Mercado Libre, WD40EFPX nuevo
+        link: "https://www.mercadolibre.com.mx/hd-western-digital-wd-red-plus-nas-sata-6-gbs-wd40efpx-de-4-tb-color-rojo/p/MLM26815998",
+        image: "https://m.media-amazon.com/images/I/81wgF5tXOJL._SL500_.jpg",
+      },
+      {
+        name: "Sony WH-1000XM5",
+        description: "Audífonos inalámbricos con cancelación de ruido.",
+        price: 169.99, // Best Buy US, color negro
+        currency: "USD",
+        link: "https://www.bestbuy.com/product/sony-wh-1000xm5-wireless-noise-cancelling-over-the-ear-headphones-black/J7XSRH5CXG",
+        image: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6505/6505727_sd.jpg;maxHeight=500;maxWidth=500?format=webp",
+      },
+      {
+        name: "Vinilo C418 – Minecraft Volume Alpha",
+        description: "Soundtrack original de Minecraft, el de la portada del bloque de pasto. Vinilo verde transparente.",
+        price: 599, // Amazon MX, edición estándar; ~$535–651 según vendedor (sin confirmar)
+        link: "https://www.amazon.com.mx/Minecraft-Alpha-Transparent-Green-Vinyl/dp/B00ZVUQMS8",
+        image: "https://m.media-amazon.com/images/I/712H89wP0xL._AC_SL500_.jpg",
+      },
+      {
+        name: "Vinilo AURORA – What Happened to the Heart?",
+        description: "Álbum de AURORA en vinilo, 2 discos.",
+        price: 777.01, // Amazon MX
+        link: "https://www.amazon.com.mx/What-Happened-Heart-Vinyl-Aurora/dp/B0DHD98T4Q",
+        image: "https://m.media-amazon.com/images/I/61SUNQBJchL._AC_SL500_.jpg",
+      },
+      {
+        name: "Kindle Paperwhite (16 GB)",
+        description: "Lector de libros de 7\" con luz cálida. O, en su lugar, el iPad mini.",
+        price: 3195, // Mercado Libre, 12.ª gen (2024); Amazon MX $3,999
+        link: "https://www.mercadolibre.com.mx/amazon-kindle-paperwhite-7-2024-12-gen-16-gb-color-negro/p/MLM44622587",
+        image: "https://m.media-amazon.com/images/I/51WeXuqsZyL._AC_SL500_.jpg",
+      },
+      {
+        name: "iPad mini 6.ª gen (A15, 64 GB, Wi-Fi)",
+        description: "Tablet de 8.3\". O, en su lugar, el Kindle Paperwhite.",
+        price: 449.9, // Best Buy US, Space Gray (sin confirmar; otros colores ~$450–495)
+        currency: "USD",
+        link: "https://www.bestbuy.com/product/apple-ipad-mini-6th-generation-wi-fi-64gb-space-gray/JJ8ZHSSW5X",
+        image: "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6dadca9c-9173-4773-908e-7b113c5cfd14.jpg;maxHeight=500;maxWidth=500?format=webp",
+      },
+      {
+        name: "FEMELI repisas acrílicas para vinilos (6 pzas)",
+        description: "Soportes de pared transparentes de 12\" para exhibir los vinilos de frente.",
+        price: 522.3, // Amazon MX (sin confirmar)
+        link: "https://www.amazon.com.mx/FEMELI-Exhibidores-Transparente-Exhibici%C3%B3n-Coleccionista/dp/B083HYGYTX",
+      },
+      {
+        name: "Barra de sonido Samsung HW-B550",
+        description: "Barra 2.1 con subwoofer inalámbrico para la tele.",
+        price: 4289, // Mercado Libre, ~$4,190–4,509 según vendedor
+        link: "https://www.mercadolibre.com.mx/barra-de-sonido-samsung-hw-b550-subwoofer-410-watts-21-ch-color-negro/p/MLM19919941",
+      },
+    ];
+    /* ========================================================= */
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const $ = (id) => document.getElementById(id);
+    const rand = (a, b) => a + Math.random() * (b - a);
+    const seeded = (seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+    /* ---------- Palette (pastel, with light + shadow ramps) ---------- */
+    const INK = "#4a3b52";
+    const PAL = {
+      // snow
+      W: "#ffffff", w: "#dfe7f3", v: "#c3cde4",
+      // reds
+      R: "#f4a3ab", r: "#e2848f", q: "#c96c7a", P: "#fbd3cb", p: "#f7b9c0",
+      // greens
+      j: "#c4ecd2", G: "#9fd9b4", g: "#7cc49b", h: "#5fae86",
+      // gold
+      Y: "#ffe08a", y: "#f2c66b",
+      // browns / wood
+      C: "#ecc9a4", c: "#d9ad85", B: "#c9a184", b: "#a98068", u: "#8a6553",
+      // fox / orange
+      F: "#f5a77f", f: "#e08c66", N: "#ffb877",
+      // penguin / hat
+      K: "#6a6491", k: "#514b78",
+      // misc
+      Q: "#a3b2d6", D: INK, X: INK, n: "#a98068",
+    };
+
+    /* ---------- Sprite data ---------- */
+    const ROWS = {
+      cat: [
+        "..W..........W..",
+        "..WW........WW..",
+        "..WWW......WWW..",
+        "..WWWWWWWWWWWW..",
+        ".WWWWWWWWWWWWWw.",
+        ".WWWDDWWWWDDWWw.",
+        ".WWWDDWWWWDDWWw.",
+        ".WWWDDWWWWDDWww.",
+        ".WWWWWWWWWWWWww.",
+        "WWWWWWWWWWWWWwww",
+      ],
+      bang: [
+        ".....X..",
+        ".X...X..",
+        ".X..X...",
+        "..X.....",
+        "......XX",
+        "....XX..",
+      ],
+      sparkle: [
+        "..Y..",
+        "..Y..",
+        "YYWYY",
+        "..Y..",
+        "..Y..",
+      ],
+      holly: [
+        "gG.....Gg",
+        "GGGg.gGGG",
+        ".GGGRGGG.",
+        "..gRqRg..",
+      ],
+      gift: [
+        "...YY...YY...",
+        "..Y..Y.Y..Y..",
+        "...YYYYYYY...",
+        "qrrrrrYrrrrrq",
+        "RRRRRRYRRRRRq",
+        "qqqqqqyqqqqqq",
+        ".RPRRRYRRRRq.",
+        ".RRRRRYRRRRq.",
+        ".RRRRRYRRRRq.",
+        ".RRRRRYRRRRq.",
+        ".rrrrryrrrrq.",
+      ],
+      tree: [
+        "........Y........",
+        ".......YyY.......",
+        "........Y........",
+        ".......jGg.......",
+        "......jGLgh......",
+        ".....WWjGgWW.....",
+        "......jGGgh......",
+        ".....jGMGGgh.....",
+        "....jGGGGLggh....",
+        "...WWjGGGGgWWW...",
+        ".....jGGLGgh.....",
+        "....jGMGGGGgh....",
+        "...jGGGGGMGggh...",
+        "..WWjGLGGGGgWWW..",
+        "...jGGMGGGGLggh..",
+        "..jGGGGLGGGGMggh.",
+        ".jGLGGGGGMGGGGggh",
+        ".......bBu.......",
+        "....wWWbBuWWw....",
+      ],
+      snowman: [
+        ".....kkk.....",
+        ".....KKk.....",
+        ".....KKk.....",
+        ".....RRq.....",
+        "....KKKKk....",
+        "....WWWWw....",
+        "...WWDWDWw...",
+        "...WpWWNNNN..",
+        "...WWWWWWw...",
+        "....wWWWv....",
+        "..RRRRRRRRq..",
+        "u..WRqWWWw..u",
+        ".u.WRqDWWWwu.",
+        "..uWWWWWWWv..",
+        "..WWWWDWWWwv.",
+        "..WWWWWWWWwv.",
+        "..wWWWWWWwvv.",
+        "...wwwwwvvv..",
+      ],
+      cabin: [
+        "...............qq....",
+        "...............Rq....",
+        "......WWWWWWWWWRqW...",
+        ".....WWWWWWWWWWWWWW..",
+        "....WWWWWWWWWWWWWWWw.",
+        "...WWWWWWWWWWWWWWWWww",
+        "..wwwwwwwwwwwwwwwwwwv",
+        "..qrrrrrrrrrrrrrrrrq.",
+        "...CCCCCCCCCCCCCCCC..",
+        "...cuuuuccGGccuuuuc..",
+        "...CuQQuCGRRGCuQQuC..",
+        "...cuQQucbbbbcuQQuc..",
+        "...CuuuuCbBBbCuuuuC..",
+        "...ccccccbBYbcccccc..",
+        "...CCCCCCbBBbCCCCCC..",
+        "..wWWWWWWWWWWWWWWWWw.",
+      ],
+      rabbit: [
+        ".....Wp.Wp",
+        ".....Wp.Wp",
+        ".....WWWW.",
+        "..w.WWWDWp",
+        ".wWWWWWWWw",
+        "wWWWWWWWw.",
+        ".wWWWwWWw.",
+        "..ww..ww..",
+      ],
+      foxA: [
+        "...........F.F.",
+        "..........fFFF.",
+        "Wf........FFDFX",
+        ".fF.....fFFFWW.",
+        "..fFFFFFFFFFWW.",
+        "...fFFFFFFFFW..",
+        "...fFFFFFFFF...",
+        "...u.u....u.u..",
+      ],
+      foxB: [
+        "...........F.F.",
+        "..........fFFF.",
+        "Wf........FFDFX",
+        ".fF.....fFFFWW.",
+        "..fFFFFFFFFFWW.",
+        "...fFFFFFFFFW..",
+        "...fFFFFFFFF...",
+        "....u.u..u.u...",
+      ],
+      penguinA: [
+        "....kKKKk....",
+        "...kKKKKKk...",
+        "..kKWWKWWKk..",
+        "..kKWDKDWKk..",
+        "..kKpWNWpKk..",
+        "..kKKWWWKKk..",
+        ".kRRRRRRRRRk.",
+        "kKKWWWWRqWKKk",
+        "k.kKWWWWWKk.k",
+        "..kKWWWWWwk..",
+        "..kKWWWWwwk..",
+        "...kKwwwwk...",
+        "..NNN...NNN..",
+      ],
+      birdA: ["..R.R..", "..RRR..", ".RRRRRY", "..RR..."],
+      birdB: [".......", ".RRRRRY", "R.RRR..", "R......"],
+      santa: [
+        "Wq..................",
+        ".qRRR...............",
+        "..WWWWW.............",
+        "...PPDP.......BBB...",
+        "..WWWWWp.....BbBBb..",
+        "..RWWWRRR...BBBBBb..",
+        ".RRRRRRRRR..BBBBBb..",
+        "qqqqqqqqqqqqqqqqqqYY",
+        "qRRRRRRRRRRRRRRRRqY.",
+        "qRYYYYYYYYYYYYYYRq..",
+        ".qRRRRRRRRRRRRRRq...",
+        "..Y......Y......Y...",
+        "YYYYYYYYYYYYYYYYYYy.",
+      ],
+      deerA: [
+        "...........u..u.",
+        "...........uuuu.",
+        "............BB..",
+        "...........BBDBn",
+        "..b.......BBBB..",
+        ".bBBBBBBBBYBB...",
+        "..BCCCCCCCBB....",
+        ".u..u....u..u...",
+        "u....u..u....u..",
+      ],
+      deerB: [
+        "...........u..u.",
+        "...........uuuu.",
+        "............BB..",
+        "...........BBDBn",
+        "..b.......BBBB..",
+        ".bBBBBBBBBYBB...",
+        "..BCCCCCCCBB....",
+        "..u.u....u.u....",
+        "..uu.....uu.....",
+      ],
+      pineS: [
+        "...W...",
+        "..jGg..",
+        ".WWGgW.",
+        ".jGGGg.",
+        "WWjGgWW",
+        "jGGGGgh",
+        "...u...",
+      ],
+      pineL: [
+        "....W....",
+        "...jGg...",
+        "..WjGgW..",
+        "...jGGg..",
+        "..jGGGgh.",
+        ".WWjGGgWW",
+        "..jGGGGgh",
+        ".jGGGGGgh",
+        "WWjGGGgWW",
+        "jGGGGGGgh",
+        "....u....",
+        "....u....",
+      ],
+      present: [".Y.Y.", "RRYRq", "RRYRq", "rrYrq"],
+      heart: ["R.R", "RRR", ".R."],
+    };
+    ROWS.penguinB = ROWS.penguinA.map((r, i) => (i === 12 ? "...NNN.NNN..." : r));
+    ROWS.catBlink = ROWS.cat.map((r, i) => (i === 5 || i === 7 ? ".WWWWWWWWWWWWWw." : r));
+    ROWS.snowmanNoNose = ROWS.snowman.map((r, i) => (i === 7 ? "...WpWWWWw..." : r));
+
+    /* ---------- SVG sprites (for the page UI) ---------- */
+    function svgSprite(rows, { px = 4, outline = true, palette = PAL, classes = {} } = {}) {
+      const h = rows.length;
+      const w = Math.max(...rows.map((r) => r.length));
+      const pad = outline ? 1 : 0;
+      const filled = (x, y) => y >= 0 && y < h && x >= 0 && x < rows[y].length && rows[y][x] !== ".";
+      let out = "";
+      if (outline) {
+        for (let y = -1; y <= h; y++)
+          for (let x = -1; x <= w; x++)
+            if (!filled(x, y) && (filled(x + 1, y) || filled(x - 1, y) || filled(x, y + 1) || filled(x, y - 1)))
+              out += `<rect x="${x + 1}" y="${y + 1}" width="1" height="1" fill="${INK}"/>`;
+      }
+      rows.forEach((row, y) =>
+        [...row].forEach((c, x) => {
+          if (c !== ".")
+            out += `<rect x="${x + pad}" y="${y + pad}" width="1" height="1" fill="${palette[c] || INK}"${classes[c] ? ` class="${classes[c]}"` : ""}/>`;
+        })
+      );
+      const Wd = w + pad * 2, Ht = h + pad * 2;
+      return `<svg viewBox="0 0 ${Wd} ${Ht}" width="${Wd * px}" height="${Ht * px}" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${out}</svg>`;
+    }
+
+    /* ---------- Canvas sprites (for the scene) ---------- */
+    function canvasSprite(rows, { outline = true, palette = PAL } = {}) {
+      const h = rows.length;
+      const w = Math.max(...rows.map((r) => r.length));
+      const pad = outline ? 1 : 0;
+      const c = document.createElement("canvas");
+      c.width = w + pad * 2;
+      c.height = h + pad * 2;
+      const g = c.getContext("2d");
+      const filled = (x, y) => y >= 0 && y < h && x >= 0 && x < rows[y].length && rows[y][x] !== ".";
+      if (outline) {
+        g.fillStyle = INK;
+        for (let y = -1; y <= h; y++)
+          for (let x = -1; x <= w; x++)
+            if (!filled(x, y) && (filled(x + 1, y) || filled(x - 1, y) || filled(x, y + 1) || filled(x, y - 1)))
+              g.fillRect(x + 1, y + 1, 1, 1);
+      }
+      rows.forEach((row, y) =>
+        [...row].forEach((ch, x) => {
+          if (ch === ".") return;
+          g.fillStyle = palette[ch] || INK;
+          g.fillRect(x + pad, y + pad, 1, 1);
+        })
+      );
+      return c;
+    }
+    function flip(src) {
+      const c = document.createElement("canvas");
+      c.width = src.width;
+      c.height = src.height;
+      const g = c.getContext("2d");
+      g.translate(src.width, 0);
+      g.scale(-1, 1);
+      g.drawImage(src, 0, 0);
+      return c;
+    }
+    const pair = (rows, opts) => {
+      const r = canvasSprite(rows, opts);
+      return { r, l: flip(r) };
+    };
+    const findChars = (rows, chars, pad = 1) => {
+      const out = [];
+      rows.forEach((row, y) => [...row].forEach((c, x) => chars.includes(c) && out.push({ x: x + pad, y: y + pad, k: c })));
+      return out;
+    };
+
+    const farPine = { ...PAL, j: "#d3f0dd", G: "#b3e0c4", g: "#9cd3b2", h: "#86c39f" };
+    const birdPal = { ...PAL, R: "#ec8f9b" };
+    const SPR = {
+      tree: canvasSprite(ROWS.tree, { palette: { ...PAL, L: PAL.G, M: PAL.G } }),
+      snowman: canvasSprite(ROWS.snowman),
+      snowmanNoNose: canvasSprite(ROWS.snowmanNoNose),
+      cabin: canvasSprite(ROWS.cabin),
+      rabbit: pair(ROWS.rabbit),
+      foxA: pair(ROWS.foxA),
+      foxB: pair(ROWS.foxB),
+      penguinA: canvasSprite(ROWS.penguinA),
+      penguinB: canvasSprite(ROWS.penguinB),
+      birdA: pair(ROWS.birdA, { outline: false, palette: birdPal }),
+      birdB: pair(ROWS.birdB, { outline: false, palette: birdPal }),
+      santa: canvasSprite(ROWS.santa),
+      deerA: canvasSprite(ROWS.deerA),
+      deerB: canvasSprite(ROWS.deerB),
+      rudolphA: canvasSprite(ROWS.deerA, { palette: { ...PAL, n: "#ff6f80" } }),
+      rudolphB: canvasSprite(ROWS.deerB, { palette: { ...PAL, n: "#ff6f80" } }),
+      pineS: canvasSprite(ROWS.pineS, { outline: false, palette: farPine }),
+      pineL: canvasSprite(ROWS.pineL, { outline: false, palette: farPine }),
+      present: canvasSprite(ROWS.present),
+      heart: canvasSprite(ROWS.heart, { outline: false }),
+    };
+    const TREE_LIGHTS = findChars(ROWS.tree, ["L", "M"]);
+    const CABIN_WINDOWS = findChars(ROWS.cabin, ["Q"]);
+    const CHIMNEY = findChars(ROWS.cabin, ["q"]).reduce((a, p) => (p.y < a.y ? p : a), { x: 0, y: 99 });
+
+    /* =========================================================
+       Scene: day/night, Santa, animals, snow
+       ========================================================= */
+    const S = 4; // CSS px per scene pixel
+    const cv = $("scene");
+    const ctx = cv.getContext("2d");
+    let W = 0, H = 0, HOR = 0;
+    let mountShade = [];
+    let farY = [], mountY = [], backY = [], frontY = [], pines = [], stars = [], flakes = [];
+    const at = (arr, x) => arr[Math.max(0, Math.min(W - 1, Math.round(x)))];
+
+    const props = { cabin: { x: 0, y: 0 }, tree: { x: 0, y: 0 }, snowman: { x: 0, y: 0, nose: true } };
+    let blizzard = false;
+
+    function layout() {
+      W = Math.ceil(window.innerWidth / S);
+      H = Math.ceil(window.innerHeight / S);
+      cv.width = W;
+      cv.height = H;
+      cv.style.width = W * S + "px";
+      cv.style.height = H * S + "px";
+      HOR = Math.round(H * 0.66);
+
+      farY = []; mountY = []; backY = []; frontY = []; mountShade = [];
+      // sharp peaks: 1 - |sin| gives pointy tops and rounded valleys
+      const peak = (x, f, o) => 1 - Math.abs(Math.sin(x / f + o));
+      const mount = (x) => HOR + 6 - 30 * peak(x, 26, 0.6) - 4 * peak(x, 9, 2);
+      const ridge = (x) => peak(x, 26, 0.6);
+      for (let x = 0; x < W; x++) {
+        farY[x] = Math.round(HOR - 8 - 24 * peak(x, 19, 3) - 3 * peak(x, 7, 1));
+        mountY[x] = Math.round(mount(x));
+        // shade the face that slopes down to the right, following the big ridge only
+        mountShade[x] = ridge(x + 0.5) < ridge(x - 0.5);
+        backY[x] = Math.round(H * 0.8 - 4 * Math.sin(x / 29) - 2 * Math.sin(x / 11 + 1));
+        frontY[x] = Math.round(H * 0.91 - 3 * Math.sin(x / 19 + 2) - 1.5 * Math.sin(x / 7));
+      }
+
+      const c = props.cabin;
+      c.x = Math.max(3, Math.round(W * 0.06));
+      c.y = at(backY, c.x + 11) - SPR.cabin.height + 3;
+      const t = props.tree;
+      t.x = c.x + SPR.cabin.width + 2;
+      t.y = at(backY, t.x + 9) - SPR.tree.height + 3;
+      const s = props.snowman;
+      s.x = Math.round(W * 0.84);
+      s.y = at(frontY, s.x + 7) - SPR.snowman.height + 3;
+
+      const r = seeded(7);
+      pines = [];
+      for (let x = 2; x < W; x += 8 + Math.floor(r() * 14)) {
+        if (x > c.x - 8 && x < t.x + SPR.tree.width + 2) continue;
+        const spr = r() < 0.45 ? SPR.pineL : SPR.pineS;
+        pines.push({ x, y: at(backY, x + 3) - spr.height + 1, spr, lit: r() < 0.55, seed: r() * 10 });
+      }
+
+      const rs = seeded(42);
+      stars = [];
+      const nStars = Math.round((W * HOR) / 240);
+      for (let i = 0; i < nStars; i++) stars.push({ x: Math.floor(rs() * W), y: Math.floor(rs() * HOR * 0.7), big: rs() < 0.1, p: rs() * 6 });
+
+      makeFlakes();
+    }
+
+    function makeFlakes() {
+      const n = Math.round(((W * H) / 170) * (blizzard ? 3 : 1));
+      flakes = Array.from({ length: n }, () => newFlake(true));
+    }
+    function newFlake(anywhere) {
+      return {
+        x: rand(0, W),
+        y: anywhere ? rand(0, H) : rand(-6, -1),
+        vy: blizzard ? rand(26, 42) : rand(5, 12),
+        drift: rand(0, 6.28),
+        big: Math.random() < 0.06,
+      };
+    }
+
+    /* ---------- Day/night clock ---------- */
+    const CYCLE = 240; // seconds for a full day in the scene
+    const d0 = new Date();
+    let clockT = (d0.getHours() + d0.getMinutes() / 60) / 24; // starts at the visitor's real time
+    let speed = 1, lapseUntil = 0;
+    let time = 0;
+
+    const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const SKY = [
+      [0.0, "#2e2f5e", "#5b5a94"],
+      [0.21, "#2e2f5e", "#5b5a94"],
+      [0.27, "#8b9fdc", "#ffcdb8"],
+      [0.34, "#a7c8f0", "#e4eefa"],
+      [0.66, "#a7c8f0", "#e4eefa"],
+      [0.73, "#9c8fd0", "#ffb6a6"],
+      [0.79, "#2e2f5e", "#5b5a94"],
+      [1.0, "#2e2f5e", "#5b5a94"],
+    ].map(([t, a, b]) => [t, hex(a), hex(b)]);
+    const mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+    function skyAt(t) {
+      for (let i = 0; i < SKY.length - 1; i++) {
+        const [t1, a1, b1] = SKY[i], [t2, a2, b2] = SKY[i + 1];
+        if (t >= t1 && t <= t2) {
+          const k = t2 === t1 ? 0 : (t - t1) / (t2 - t1);
+          return [mix(a1, a2, k), mix(b1, b2, k)];
+        }
+      }
+      return [SKY[0][1], SKY[0][2]];
+    }
+    function nightAt(t) {
+      if (t < 0.21 || t > 0.79) return 1;
+      if (t > 0.34 && t < 0.66) return 0;
+      return t <= 0.34 ? 1 - (t - 0.21) / 0.13 : (t - 0.66) / 0.13;
+    }
+
+    /* ---------- Moving things ---------- */
+    const rabbit = { on: false, next: 2, x: 0, dir: 1, oy: 0, vy: 0, wait: 0 };
+    const fox = { on: false, next: 9, x: 0, dir: 1, run: 0 };
+    const penguin = { on: false, next: 20, x: 0, dir: 1, slide: 0 };
+    const birds = { on: false, next: 5, x: 0, y: 0, dir: 1 };
+    const sleigh = { on: false, next: 7, x: 0, y: 0 };
+    let shooting = null;
+    let smoke = [], hearts = 0, gifts = [], sparks = [];
+    let treeLights = 0, disco = false;
+    const LIGHT_SETS = [
+      ["#f4a3ab", "#ffe08a"],
+      ["#a9c8f5", "#f9b8e4"],
+      ["#b8e6c9", "#ffffff"],
+      ["#ffc69a", "#cbb8f5"],
+    ];
+    const BULBS = ["#f4a3ab", "#ffe08a", "#9fd9b4", "#a9c8f5"];
+
+    function spawn(a, dt) {
+      if (a.on) return false;
+      a.next -= dt;
+      if (a.next > 0) return false;
+      a.on = true;
+      a.dir = Math.random() < 0.5 ? 1 : -1;
+      a.x = a.dir > 0 ? -18 : W + 18;
+      return true;
+    }
+    function despawn(a, min, max) {
+      if (a.x < -30 || a.x > W + 30) {
+        a.on = false;
+        a.next = rand(min, max);
+      }
+    }
+
+    function step(dt) {
+      time += dt;
+      if (lapseUntil && time > lapseUntil) { speed = 1; lapseUntil = 0; }
+      clockT = (clockT + (dt * speed) / CYCLE) % 1;
+      const night = nightAt(clockT);
+
+      // rabbit — hops along the front hill
+      if (spawn(rabbit, dt)) { rabbit.oy = 0; rabbit.vy = 0; rabbit.wait = 0; }
+      if (rabbit.on) {
+        if (rabbit.oy >= 0 && rabbit.vy >= 0) {
+          rabbit.oy = 0;
+          rabbit.wait -= dt;
+          if (rabbit.wait <= 0) { rabbit.vy = -24; rabbit.wait = rand(0.15, 0.6); }
+        }
+        if (rabbit.oy < 0 || rabbit.vy < 0) {
+          rabbit.vy += 80 * dt;
+          rabbit.oy += rabbit.vy * dt;
+          rabbit.x += rabbit.dir * 16 * dt;
+          if (rabbit.oy > 0) { rabbit.oy = 0; rabbit.vy = 0; }
+        }
+        despawn(rabbit, 4, 14);
+      }
+
+      // fox — trots along the back hill
+      spawn(fox, dt);
+      if (fox.on) {
+        fox.run = Math.max(0, fox.run - dt);
+        fox.x += fox.dir * (fox.run ? 30 : 8) * dt;
+        despawn(fox, 8, 22);
+      }
+
+      // penguin — waddles (or belly-slides when poked)
+      spawn(penguin, dt);
+      if (penguin.on) {
+        penguin.slide = Math.max(0, penguin.slide - dt);
+        penguin.x += penguin.dir * (penguin.slide ? 34 : 5) * dt;
+        despawn(penguin, 15, 35);
+      }
+
+      // birds — daytime only
+      if (night < 0.4 && spawn(birds, dt)) birds.y = rand(H * 0.18, H * 0.4);
+      if (birds.on) {
+        birds.x += birds.dir * 18 * dt;
+        despawn(birds, 6, 16);
+      }
+
+      // Santa
+      if (spawn(sleigh, dt)) {
+        sleigh.x = -66;
+        sleigh.y = Math.round(rand(H * 0.1, H * 0.28));
+      }
+      if (sleigh.on) {
+        sleigh.x += 22 * dt;
+        if (sleigh.x > W + 10) { sleigh.on = false; sleigh.next = rand(35, 60); }
+      }
+
+      // shooting stars at night
+      if (!shooting && night > 0.7 && Math.random() < dt / 14) {
+        shooting = { x: rand(W * 0.3, W), y: rand(2, HOR * 0.35), vx: -rand(55, 75), vy: rand(14, 24), life: 0 };
+      }
+      if (shooting) {
+        shooting.life += dt;
+        shooting.x += shooting.vx * dt;
+        shooting.y += shooting.vy * dt;
+        if (shooting.life > 1.3) shooting = null;
+      }
+
+      // chimney smoke (or hearts)
+      hearts = Math.max(0, hearts - dt);
+      if (Math.random() < dt * 2.2) {
+        const c = props.cabin;
+        smoke.push({ x: c.x + CHIMNEY.x + 0.5, y: c.y + CHIMNEY.y - 1, vx: rand(-0.5, 2.5), vy: -rand(3, 5), life: 0, max: hearts ? 3 : 4, heart: hearts > 0 });
+      }
+      smoke = smoke.filter((p) => (p.life += dt) < p.max);
+      smoke.forEach((p) => { p.x += p.vx * dt; p.y += p.vy * dt; });
+
+      // gifts dropped from the sleigh
+      gifts.forEach((g) => {
+        if (g.landed) { g.t += dt; return; }
+        g.vy += 60 * dt;
+        g.y += g.vy * dt;
+        const ground = at(frontY, g.x + 3) - 5;
+        if (g.y >= ground) {
+          g.y = ground;
+          g.landed = true;
+          g.t = 0;
+          burst(g.x + 3, g.y, 14);
+        }
+      });
+      gifts = gifts.filter((g) => !g.landed || g.t < 3);
+
+      sparks = sparks.filter((p) => (p.life += dt) < p.max);
+      sparks.forEach((p) => { p.vy += 50 * dt; p.x += p.vx * dt; p.y += p.vy * dt; });
+
+      // snow
+      flakes.forEach((f) => {
+        f.y += f.vy * dt;
+        f.x += Math.sin(time * 1.3 + f.drift) * (blizzard ? 14 : 3) * dt + (blizzard ? 10 * dt : 0);
+        if (f.y > H || f.x > W + 2) Object.assign(f, newFlake(false));
+      });
+    }
+
+    function burst(x, y, n, colors = ["#f4a3ab", "#ffe08a", "#9fd9b4", "#a9c8f5", "#ffffff"]) {
+      for (let i = 0; i < n; i++) {
+        const a = -Math.PI / 2 + rand(-1.2, 1.2);
+        const s = rand(14, 30);
+        sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0, max: rand(0.7, 1.2), c: colors[i % colors.length] });
+      }
+    }
+
+    /* ---------- Drawing ---------- */
+    let hotspots = [];
+    const hot = (id, x, y, w, h) => hotspots.push({ id, x, y, w, h });
+    const blit = (img, x, y) => ctx.drawImage(img, Math.round(x), Math.round(y));
+    const px = (x, y, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, 1, 1); };
+
+    function disc(cx, cy, r, color, test) {
+      ctx.fillStyle = color;
+      for (let y = -r; y <= r; y++)
+        for (let x = -r; x <= r; x++)
+          if (x * x + y * y <= r * r + r * 0.6 && (!test || test(x, y))) ctx.fillRect(cx + x, cy + y, 1, 1);
+    }
+
+    function drawSun(x, y) {
+      // checkered halo
+      ctx.globalAlpha = 0.5;
+      disc(x, y, 10, "#fff4c4", (dx, dy) => (dx + dy) % 2 === 0 && dx * dx + dy * dy > 64);
+      ctx.globalAlpha = 1;
+      // rays
+      ctx.fillStyle = "#ffe08a";
+      [[0, -9], [0, 9], [-9, 0], [9, 0]].forEach(([dx, dy]) => ctx.fillRect(x + dx, y + dy, 1, 1));
+      [[-7, -7], [7, -7], [-7, 7], [7, 7]].forEach(([dx, dy]) => ctx.fillRect(x + dx, y + dy, 1, 1));
+      disc(x, y, 6, "#f2c66b");
+      disc(x, y, 5, "#ffe08a");
+      disc(x - 1, y - 1, 3, "#fff1b8");
+      px(x - 2, y - 3, "#ffffff");
+    }
+    function drawMoon(x, y) {
+      ctx.globalAlpha = 0.35;
+      disc(x, y, 8, "#fff7dc", (dx, dy) => (dx + dy) % 2 === 0 && dx * dx + dy * dy > 30);
+      ctx.globalAlpha = 1;
+      disc(x, y, 5, "#fff4cf");
+      disc(x, y, 5, "#e9dcae", (dx, dy) => dx + dy > 4); // shaded edge
+      px(x - 2, y - 1, "#efe2b6"); px(x - 1, y - 1, "#efe2b6"); px(x - 2, y, "#efe2b6");
+      px(x + 1, y + 2, "#efe2b6");
+      px(x + 1, y - 3, "#efe2b6");
+      px(x - 3, y - 2, "#ffffff");
+    }
+
+    function draw() {
+      hotspots = [];
+      const t = clockT;
+      const night = nightAt(t);
+      const [top, bottom] = skyAt(t);
+
+      // sky in bands with a dithered seam between each
+      const BANDS = 10;
+      const skyH = H * 0.8;
+      const bandColors = [];
+      for (let i = 0; i < BANDS; i++) {
+        const c = `rgb(${mix(top, bottom, i / (BANDS - 1))})`;
+        bandColors.push(c);
+        const y0 = Math.floor((i * skyH) / BANDS);
+        ctx.fillStyle = c;
+        ctx.fillRect(0, y0, W, Math.ceil(skyH / BANDS) + 1 + (i === BANDS - 1 ? H : 0));
+      }
+      for (let i = 1; i < BANDS; i++) {
+        const y0 = Math.floor((i * skyH) / BANDS);
+        ctx.fillStyle = bandColors[i];
+        for (let x = 0; x < W; x += 2) ctx.fillRect(x + ((y0 - 1) % 2), y0 - 1, 1, 1);
+        for (let x = 0; x < W; x += 4) ctx.fillRect(x, y0 - 2, 1, 1);
+      }
+
+      // stars
+      if (night > 0.05) {
+        stars.forEach((s) => {
+          const tw = 0.55 + 0.45 * Math.sin(time * 2 + s.p);
+          ctx.globalAlpha = night * tw;
+          ctx.fillStyle = "#fffbe8";
+          ctx.fillRect(s.x, s.y, 1, 1);
+          if (s.big) {
+            ctx.globalAlpha = night * tw * 0.55;
+            ctx.fillRect(s.x - 1, s.y, 1, 1); ctx.fillRect(s.x + 1, s.y, 1, 1);
+            ctx.fillRect(s.x, s.y - 1, 1, 1); ctx.fillRect(s.x, s.y + 1, 1, 1);
+          }
+        });
+        ctx.globalAlpha = 1;
+      }
+
+      if (shooting) {
+        const s = shooting;
+        const fade = 1 - s.life / 1.3;
+        for (let i = 0; i < 7; i++) {
+          ctx.globalAlpha = fade * (1 - i / 7);
+          ctx.fillStyle = i < 2 ? "#ffffff" : "#fff1b8";
+          ctx.fillRect(Math.round(s.x - (s.vx / 30) * i), Math.round(s.y - (s.vy / 30) * i), 1, 1);
+        }
+        ctx.globalAlpha = 1;
+        hot("shooting", s.x - 4, s.y - 4, 10, 8);
+      }
+
+      // sun & moon along an arc
+      const arc = (p) => [Math.round(W * 0.06 + p * W * 0.88), Math.round(HOR - Math.sin(Math.PI * p) * HOR * 0.72)];
+      if (t > 0.2 && t < 0.8) {
+        const [x, y] = arc((t - 0.2) / 0.6);
+        drawSun(x, y);
+        hot("sun", x - 8, y - 8, 16, 16);
+      }
+      const tm = (t + 0.5) % 1;
+      if (tm > 0.2 && tm < 0.8) {
+        const [x, y] = arc((tm - 0.2) / 0.6);
+        drawMoon(x, y);
+        hot("moon", x - 7, y - 7, 14, 14);
+      }
+
+      // birds (sky, daytime)
+      if (birds.on) {
+        const f = Math.floor(time * 5) % 2 ? SPR.birdA : SPR.birdB;
+        const img = birds.dir > 0 ? f.r : f.l;
+        for (let i = 0; i < 3; i++) {
+          const bx = birds.x - birds.dir * i * 10;
+          const by = birds.y + (i % 2) * 5 + Math.round(Math.sin(time * 3 + i) * 1.5);
+          blit(img, bx, by);
+          hot("bird", bx - 1, by - 1, 9, 6);
+        }
+      }
+
+      // far mountains (hazy)
+      const farSnow = HOR - 22;
+      for (let x = 0; x < W; x++) {
+        const y = farY[x];
+        ctx.fillStyle = "#dcd8f1";
+        ctx.fillRect(x, y, 1, H - y);
+        if (y < farSnow) {
+          ctx.fillStyle = "#f6f4fc";
+          ctx.fillRect(x, y, 1, farSnow - y);
+          if (x % 2 === 0) ctx.fillRect(x, farSnow, 1, 1);
+        }
+      }
+      // near mountains: lit and shaded faces, snow caps, dithered snowline
+      const snowLine = HOR - 12;
+      for (let x = 0; x < W; x++) {
+        const y = mountY[x];
+        const shaded = mountShade[x];
+        ctx.fillStyle = shaded ? "#b4aedb" : "#c6c1e6";
+        ctx.fillRect(x, y, 1, H - y);
+        if (y < snowLine) {
+          ctx.fillStyle = shaded ? "#e4e1f4" : "#ffffff";
+          ctx.fillRect(x, y, 1, snowLine - y);
+          if (x % 2 === 0) ctx.fillRect(x, snowLine, 1, 1);
+          if (x % 4 === 1) ctx.fillRect(x, snowLine + 1, 1, 1);
+        } else {
+          px(x, y, shaded ? "#e4e1f4" : "#ffffff");
+        }
+      }
+
+      // back hill
+      for (let x = 0; x < W; x++) {
+        const y = backY[x];
+        ctx.fillStyle = "#e8eef8";
+        ctx.fillRect(x, y, 1, H - y);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x, y, 1, 2);
+        if (x % 2 === 0) ctx.fillRect(x, y + 2, 1, 1);
+        if (x % 4 === 1) ctx.fillRect(x, y + 3, 1, 1);
+      }
+      pines.forEach((p) => blit(p.spr, p.x, p.y));
+
+      // smoke (dims with the land at night)
+      smoke.forEach((p) => {
+        const a = 1 - p.life / p.max;
+        ctx.globalAlpha = a * 0.9;
+        if (p.heart) blit(SPR.heart, p.x - 1, p.y - 1);
+        else {
+          ctx.fillStyle = "#ffffff";
+          const s = p.life > 1.5 ? 2 : 1;
+          ctx.fillRect(Math.round(p.x), Math.round(p.y), s, s);
+        }
+      });
+      ctx.globalAlpha = 1;
+
+      const c = props.cabin, tr = props.tree, sm = props.snowman;
+      // soft snow shadows under props
+      ctx.fillStyle = "#d9e2f0";
+      ctx.fillRect(c.x + 3, c.y + SPR.cabin.height - 1, SPR.cabin.width - 4, 1);
+      ctx.fillRect(tr.x + 4, tr.y + SPR.tree.height - 1, SPR.tree.width - 8, 1);
+      blit(SPR.cabin, c.x, c.y);
+      hot("cabin", c.x, c.y, SPR.cabin.width, SPR.cabin.height);
+      blit(SPR.tree, tr.x, tr.y);
+      hot("tree", tr.x, tr.y, SPR.tree.width, SPR.tree.height);
+
+      if (fox.on) {
+        const f = Math.floor(time * (fox.run ? 12 : 5)) % 2 ? SPR.foxA : SPR.foxB;
+        const img = fox.dir > 0 ? f.r : f.l;
+        const y = at(backY, fox.x + 7) - img.height + 2;
+        blit(img, fox.x, y);
+        hot("fox", fox.x, y, img.width, img.height);
+      }
+
+      // front hill, with a dithered shadow line and sparkly crust
+      for (let x = 0; x < W; x++) {
+        const y = frontY[x];
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x, y, 1, H - y);
+        ctx.fillStyle = "#eef2f9";
+        ctx.fillRect(x, y + 2, 1, H - y - 2);
+        ctx.fillStyle = "#ffffff";
+        if (x % 2 === 0) ctx.fillRect(x, y + 2, 1, 1);
+        if ((x * 7) % 13 === 0) { ctx.fillStyle = "#dbe3f0"; ctx.fillRect(x, y + 5 + (x % 5), 1, 1); }
+        if ((x * 11) % 17 === 0) { ctx.fillStyle = "#ffffff"; ctx.fillRect(x, y + 8 + (x % 7), 1, 1); }
+      }
+
+      ctx.fillStyle = "#d9e2f0";
+      ctx.fillRect(sm.x + 2, sm.y + SPR.snowman.height - 1, SPR.snowman.width - 4, 1);
+      blit(sm.nose ? SPR.snowman : SPR.snowmanNoNose, sm.x, sm.y);
+      hot("snowman", sm.x, sm.y, SPR.snowman.width, SPR.snowman.height);
+
+      if (rabbit.on) {
+        const img = rabbit.dir > 0 ? SPR.rabbit.r : SPR.rabbit.l;
+        const y = at(frontY, rabbit.x + 5) - img.height + 2 + Math.round(rabbit.oy);
+        blit(img, rabbit.x, y);
+        hot("rabbit", rabbit.x, y, img.width, img.height);
+      }
+
+      if (penguin.on) {
+        const img = Math.floor(time * 4) % 2 ? SPR.penguinA : SPR.penguinB;
+        if (penguin.slide) {
+          const y = at(frontY, penguin.x + 7) - img.width + 2;
+          ctx.save();
+          if (penguin.dir > 0) { ctx.translate(Math.round(penguin.x) + img.height, y); ctx.rotate(Math.PI / 2); }
+          else { ctx.translate(Math.round(penguin.x), y + img.width); ctx.rotate(-Math.PI / 2); }
+          ctx.drawImage(img, 0, 0);
+          ctx.restore();
+          hot("penguin", penguin.x, y, img.height, img.width);
+        } else {
+          const y = at(frontY, penguin.x + 7) - img.height + 2;
+          blit(img, penguin.x, y);
+          hot("penguin", penguin.x, y, img.width, img.height);
+        }
+      }
+
+      // night falls on the land only (sky handles its own colors)
+      if (night > 0) {
+        ctx.fillStyle = `rgba(38, 34, 78, ${night * 0.48})`;
+        for (let x = 0; x < W; x++) {
+          const y = Math.min(farY[x], mountY[x]);
+          ctx.fillRect(x, y, 1, H - y);
+        }
+      }
+
+      // lights that glow through the night
+      CABIN_WINDOWS.forEach((p) => {
+        ctx.globalAlpha = Math.max(0.12, night);
+        px(c.x + p.x, c.y + p.y, (p.x + p.y) % 2 ? "#ffe08a" : "#fff1b8");
+      });
+      if (night > 0.3) {
+        ctx.globalAlpha = night * 0.25;
+        ctx.fillStyle = "#ffe08a";
+        CABIN_WINDOWS.forEach((p) => ctx.fillRect(c.x + p.x - 1, c.y + p.y + 2, 3, 1));
+      }
+      ctx.globalAlpha = 1;
+
+      const [l1, l2] = LIGHT_SETS[treeLights % LIGHT_SETS.length];
+      const beat = Math.floor(time * (disco ? 7 : 1.25)) % 2;
+      TREE_LIGHTS.forEach((p) => {
+        const on = (p.k === "L") === (beat === 0);
+        ctx.globalAlpha = on ? 1 : 0.45;
+        px(tr.x + p.x, tr.y + p.y, p.k === "L" ? l1 : l2);
+      });
+      ctx.globalAlpha = 1;
+      if (night > 0.3) {
+        ctx.globalAlpha = night * 0.5;
+        ctx.fillStyle = "#fff4c4";
+        ctx.fillRect(tr.x + 8, tr.y, 3, 1);
+        ctx.fillRect(tr.x + 9, tr.y - 1, 1, 1);
+        ctx.globalAlpha = 1;
+        pines.forEach((p, i) => {
+          if (!p.lit) return;
+          const w = p.spr.width, h = p.spr.height;
+          [[2, Math.floor(h * 0.45)], [Math.floor(w / 2), Math.floor(h * 0.65)], [w - 3, Math.floor(h * 0.8)]].forEach(([dx, dy], j) => {
+            const blink = Math.sin(time * 2.4 + p.seed + j * 2) > -0.2;
+            ctx.globalAlpha = night * (blink ? 1 : 0.35);
+            px(p.x + dx, p.y + dy, BULBS[(i + j) % BULBS.length]);
+          });
+        });
+        ctx.globalAlpha = 1;
+      }
+
+      // Santa's sleigh
+      if (sleigh.on) {
+        const x = Math.round(sleigh.x);
+        const y = sleigh.y + Math.round(Math.sin(time * 2) * 2);
+        const legs = Math.floor(time * 7) % 2;
+        const d2 = legs ? SPR.deerA : SPR.deerB;
+        const d1 = legs ? SPR.rudolphB : SPR.rudolphA;
+        const y2 = y - 3 + Math.round(Math.sin(time * 3 + 1));
+        const y1 = y - 5 + Math.round(Math.sin(time * 3 + 2));
+        // reins
+        const rein = (x0, y0, x1, y1r) => {
+          const n = x1 - x0;
+          for (let i = 0; i <= n; i++) px(x0 + i, Math.round(y0 + ((y1r - y0) * i) / n), "#c9a184");
+        };
+        rein(x + 9, y + 6, x + 27, y2 + 7);
+        rein(x + 39, y2 + 6, x + 45, y1 + 7);
+        blit(SPR.santa, x, y);
+        blit(d2, x + 26, y2);
+        blit(d1, x + 44, y1);
+        if (night > 0.3 && legs) {
+          ctx.globalAlpha = 0.45;
+          ctx.fillStyle = "#ff8a98";
+          ctx.fillRect(x + 44 + 16, y1 + 3, 2, 3);
+          ctx.globalAlpha = 1;
+        }
+        hot("sleigh", x - 1, y1 - 1, 64, 18);
+      }
+
+      gifts.forEach((g) => {
+        ctx.globalAlpha = g.landed ? Math.max(0, 1 - g.t / 3) : 1;
+        blit(SPR.present, g.x, g.y);
+      });
+      ctx.globalAlpha = 1;
+
+      sparks.forEach((p) => {
+        ctx.globalAlpha = 1 - p.life / p.max;
+        px(Math.round(p.x), Math.round(p.y), p.c);
+      });
+      ctx.globalAlpha = 1;
+
+      // snow
+      if (!reduceMotion.matches) {
+        ctx.fillStyle = "#ffffff";
+        flakes.forEach((f) => {
+          const fx = Math.round(f.x), fy = Math.round(f.y);
+          if (f.big) {
+            ctx.globalAlpha = 0.9;
+            ctx.fillRect(fx, fy - 1, 1, 3);
+            ctx.fillRect(fx - 1, fy, 3, 1);
+          } else {
+            ctx.globalAlpha = 0.8;
+            ctx.fillRect(fx, fy, 1, 1);
+          }
+        });
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    /* ---------- Loop ---------- */
+    let raf = 0, prev = 0, staticTimer = 0;
+    function loop(ts) {
+      raf = requestAnimationFrame(loop);
+      if (ts - prev < 33) return;
+      const dt = prev ? Math.min(0.1, (ts - prev) / 1000) : 0;
+      prev = ts;
+      step(dt);
+      draw();
+    }
+    function start() {
+      cancelAnimationFrame(raf);
+      clearInterval(staticTimer);
+      prev = 0;
+      if (reduceMotion.matches) {
+        const sync = () => {
+          const d = new Date();
+          clockT = (d.getHours() + d.getMinutes() / 60) / 24;
+          draw();
+        };
+        sync();
+        staticTimer = setInterval(sync, 30000);
+      } else {
+        raf = requestAnimationFrame(loop);
+      }
+    }
+    layout();
+    start();
+    reduceMotion.addEventListener("change", start);
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { layout(); draw(); }, 120);
+    });
+
+    /* ---------- Scene easter eggs (no text, just reactions) ---------- */
+    const EGGS = {
+      sun: () => { speed = 40; lapseUntil = time + 6; },
+      moon: () => { speed = 40; lapseUntil = time + 6; },
+      sleigh: () => gifts.push({ x: sleigh.x + 8, y: sleigh.y + 12, vy: 0, landed: false, t: 0 }),
+      cabin: () => { hearts = 8; },
+      tree: () => { treeLights++; disco = treeLights % 8 === 0; },
+      snowman: () => { props.snowman.nose = !props.snowman.nose; },
+      rabbit: () => { rabbit.vy = -48; rabbit.oy = -0.1; },
+      fox: () => { fox.run = 2.5; },
+      penguin: () => { penguin.slide = 3; },
+      bird: () => { birds.y -= 10; },
+      shooting: () => {
+        burst(shooting.x, shooting.y, 18, ["#fffbe8", "#ffe08a", "#cbb8f5"]);
+        shooting = null;
+      },
+    };
+    function hitAt(cx, cy) {
+      for (let i = hotspots.length - 1; i >= 0; i--) {
+        const h = hotspots[i];
+        if (cx >= h.x - 2 && cx <= h.x + h.w + 2 && cy >= h.y - 2 && cy <= h.y + h.h + 2) return h;
+      }
+      return null;
+    }
+    cv.addEventListener("pointermove", (e) => {
+      cv.style.cursor = hitAt(e.clientX / S, e.clientY / S) ? "pointer" : "default";
+    });
+    cv.addEventListener("click", (e) => {
+      const h = hitAt(e.clientX / S, e.clientY / S);
+      if (!h) return;
+      EGGS[h.id]();
+      burst(e.clientX / S, e.clientY / S, 6, ["#ffffff", "#ffe08a", "#f9b8e4"]);
+      if (reduceMotion.matches) draw();
+    });
+
+    // a little pixel twinkle for clicks on the page UI
+    const sparkleSvg = svgSprite(ROWS.sparkle, { px: 3, outline: false });
+    function twinkleAt(x, y) {
+      if (reduceMotion.matches) return;
+      for (let i = 0; i < 3; i++) {
+        const el = document.createElement("div");
+        el.innerHTML = sparkleSvg;
+        $("fx").appendChild(el);
+        const dx = x + rand(-22, 22) - 7, dy = y + rand(-22, 6) - 7;
+        el.animate(
+          [
+            { transform: `translate(${dx}px, ${dy}px) scale(0.4)`, opacity: 0 },
+            { transform: `translate(${dx}px, ${dy - 6}px) scale(1)`, opacity: 1, offset: 0.35 },
+            { transform: `translate(${dx}px, ${dy - 12}px) scale(0.4)`, opacity: 0 },
+          ],
+          { duration: 600, delay: i * 80, easing: "ease-out", fill: "backwards" }
+        ).onfinish = () => el.remove();
+      }
+    }
+
+    /* =========================================================
+       Card
+       ========================================================= */
+    $("holly").innerHTML = svgSprite(ROWS.holly, { px: 3 });
+
+    function decorateCard() {
+      const card = $("card");
+      const w = card.offsetWidth;
+      const cols = Math.ceil((w + 8) / 4);
+      const r = seeded(11);
+      const row0 = "." + "W".repeat(cols - 2) + ".";
+      let row1 = "", row2 = "", row3 = "";
+      for (let x = 0; x < cols; x++) {
+        const a = x > 0 && x < cols - 1 && r() < 0.55;
+        row1 += r() < 0.3 ? "w" : "W";
+        row2 += a ? (r() < 0.4 ? "w" : "W") : ".";
+        row3 += a && r() < 0.35 ? "w" : ".";
+      }
+      $("snowcap").innerHTML = svgSprite([row0, row1, row2, row3], { px: 4 });
+
+      const gcols = Math.floor((w - 16) / 4);
+      const span = 14;
+      let out = "";
+      for (let x = 0; x < gcols; x++) {
+        const seg = x % span;
+        const y = Math.round(3 * Math.sin((Math.PI * seg) / span));
+        out += `<rect x="${x}" y="${y}" width="1" height="1" fill="${INK}"/>`;
+      }
+      let i = 0;
+      for (let x = Math.floor(span / 2); x < gcols - 1; x += span, i++) {
+        const color = BULBS[i % BULBS.length];
+        out += `<g class="bulb ${i % 2 ? "tw-b" : "tw-a"}">
+          <rect x="${x}" y="3" width="2" height="1" fill="#8a6553"/>
+          <rect x="${x - 1}" y="4" width="4" height="5" fill="${INK}"/>
+          <rect class="glass" x="${x}" y="5" width="2" height="3" fill="${color}"/>
+          <rect class="shine" x="${x}" y="5" width="1" height="1" fill="#ffffff"/>
+        </g>`;
+      }
+      $("garland").innerHTML = `<svg viewBox="0 0 ${gcols} 10" width="${gcols * 4}" height="40" shape-rendering="crispEdges" aria-hidden="true">${out}</svg>`;
+    }
+    decorateCard();
+    new ResizeObserver(decorateCard).observe($("card"));
+
+    $("garland").addEventListener("click", (e) => {
+      const bulb = e.target.closest(".bulb");
+      if (!bulb) return;
+      bulb.classList.toggle("off");
+      const all = [...$("garland").querySelectorAll(".bulb")];
+      if (all.every((b) => b.classList.contains("off"))) {
+        setTimeout(() => {
+          all.forEach((b) => b.classList.remove("off"));
+          const r = $("garland").getBoundingClientRect();
+          for (let k = 0; k < 4; k++) twinkleAt(r.left + (r.width * (k + 0.5)) / 4, r.top + 20);
+        }, 900);
+      }
+    });
+
+    /* ---------- Tomo cat ---------- */
+    const catSprite = $("cat-sprite");
+    const catOpen = svgSprite(ROWS.cat);
+    const catShut = svgSprite(ROWS.catBlink);
+    catSprite.innerHTML = catOpen;
+    $("cat-bang").innerHTML = svgSprite(ROWS.bang, { px: 3, outline: false });
+    (function blink() {
+      setTimeout(() => {
+        catSprite.innerHTML = catShut;
+        setTimeout(() => { catSprite.innerHTML = catOpen; blink(); }, 140);
+      }, rand(2500, 5500));
+    })();
+
+    let catClicks = 0, catTimer;
+    function catAlert(ms = 1200) {
+      $("cat").classList.add("alert");
+      clearTimeout(catTimer);
+      catTimer = setTimeout(() => $("cat").classList.remove("alert"), ms);
+    }
+    function catJump(h = 26) {
+      if (reduceMotion.matches) return;
+      catSprite.animate(
+        [{ transform: "translateY(0)" }, { transform: `translateY(-${h}px)`, offset: 0.4 }, { transform: "translateY(0)" }],
+        { duration: 520, easing: "ease-out" }
+      );
+    }
+    $("cat").addEventListener("click", (e) => {
+      catClicks++;
+      catAlert();
+      const r = $("cat").getBoundingClientRect();
+      if (catClicks % 7 === 0) {
+        catJump(34);
+        twinkleAt(r.left + r.width / 2, r.top);
+      } else {
+        catJump(8);
+      }
+    });
+
+    /* ---------- List ---------- */
+    const thumbGift = svgSprite(ROWS.gift, { px: 3 });
+    const arrowSvg = svgSprite(["XXX.", "..X.", ".X.X", "X..."], { px: 2, outline: false, palette: { X: "#9a8aa3" } });
+    const chevron = (dir) =>
+      svgSprite(dir === "desc" ? ["XXXXX", ".XXX.", "..X.."] : ["..X..", ".XXX.", "XXXXX"], { px: 2, outline: false, palette: { X: INK } });
+    const esc = (s = "") => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    // to sort mixed currencies fairly, compare everything in pesos
+    const TO_MXN = { MXN: 1, USD: 18.5 };
+    const inMXN = (it) => Number(it.price) * (TO_MXN[it.currency || "MXN"] || 1);
+    const money = (n, cur = "MXN") =>
+      `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${esc(cur)}`;
+
+    function pixelate(canvas, src) {
+      const img = new Image();
+      img.onload = () => {
+        const g = canvas.getContext("2d");
+        const s = Math.min(img.naturalWidth, img.naturalHeight);
+        g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, canvas.width, canvas.height);
+      };
+      img.onerror = () => { canvas.outerHTML = thumbGift; };
+      img.src = src;
+    }
+
+    function renderList() {
+      const list = $("list");
+      const dir = $("sort").dataset.dir === "asc" ? 1 : -1;
+      const items = [...WISHLIST].sort((a, b) => (inMXN(a) - inMXN(b)) * dir);
+      if (!items.length) {
+        list.innerHTML = `<li class="empty">La lista está vacía… por ahora.</li>`;
+        return;
+      }
+      list.innerHTML = items
+        .map((it) => {
+          const tag = it.link ? "a" : "div";
+          const attrs = it.link ? ` href="${esc(it.link)}" target="_blank" rel="noopener noreferrer"` : "";
+          const img = it.image ? `<canvas width="44" height="44" data-src="${esc(it.image)}"></canvas>` : thumbGift;
+          return `<li>
+            <${tag} class="item"${attrs}>
+              <div class="thumb">${img}</div>
+              <div class="info">
+                <div>
+                  <p class="name">${esc(it.name)}${it.link ? arrowSvg : ""}</p>
+                  ${it.description ? `<p class="desc">${esc(it.description)}</p>` : ""}
+                </div>
+                <p class="price">${money(it.price, it.currency || "MXN")}</p>
+              </div>
+            </${tag}>
+          </li>`;
+        })
+        .join("");
+      list.querySelectorAll("canvas[data-src]").forEach((c) => pixelate(c, c.dataset.src));
+    }
+
+    function renderSort() {
+      const dir = $("sort").dataset.dir;
+      $("sort-label").textContent = dir === "desc" ? "High to low" : "Low to high";
+      $("sort-icon").innerHTML = chevron(dir);
+      $("sort").setAttribute("aria-label", dir === "desc" ? "Ordenar por precio: de mayor a menor" : "Ordenar por precio: de menor a mayor");
+    }
+    $("sort").addEventListener("click", () => {
+      $("sort").dataset.dir = $("sort").dataset.dir === "desc" ? "asc" : "desc";
+      renderSort();
+      renderList();
+    });
+    renderSort();
+    renderList();
+
+    /* ---------- Countdown (click it for the exact time) ---------- */
+    let precise = false, cdTimer;
+    function nextXmas(now) {
+      let x = new Date(now.getFullYear(), 11, 25);
+      const end = new Date(now.getFullYear(), 11, 26);
+      if (now >= end) x = new Date(now.getFullYear() + 1, 11, 25);
+      return x;
+    }
+    function updateCountdown() {
+      const now = new Date();
+      const x = nextXmas(now);
+      const el = $("countdown");
+      if (now >= x) { el.textContent = "¡Hoy es Navidad!"; return; }
+      if (precise) {
+        let s = Math.floor((x - now) / 1000);
+        const d = Math.floor(s / 86400); s %= 86400;
+        const h = Math.floor(s / 3600); s %= 3600;
+        const m = Math.floor(s / 60); s %= 60;
+        const p = (v) => String(v).padStart(2, "0");
+        el.textContent = `Faltan ${d}d ${p(h)}h ${p(m)}m ${p(s)}s`;
+      } else {
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const days = Math.round((x - today) / 864e5);
+        el.textContent = days === 1 ? "Falta 1 día para Navidad" : `Faltan ${days} días para Navidad`;
+      }
+    }
+    $("countdown").addEventListener("click", () => {
+      precise = !precise;
+      clearInterval(cdTimer);
+      if (precise) cdTimer = setInterval(updateCountdown, 1000);
+      updateCountdown();
+    });
+    updateCountdown();
+
+    /* ---------- Keyboard secrets ---------- */
+    const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+    let seq = [], typed = "";
+    document.addEventListener("keydown", (e) => {
+      if (e.target.closest("input, textarea")) return;
+      const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      seq = [...seq, key].slice(-KONAMI.length);
+      if (seq.join() === KONAMI.join()) { seq = []; catRain(); }
+      if (e.key.length !== 1) return;
+      typed = (typed + e.key.toLowerCase()).slice(-12);
+      if (typed.endsWith("nieve")) { blizzard = !blizzard; makeFlakes(); }
+      if (typed.endsWith("jojojo")) { sleigh.on = false; sleigh.next = 0; }
+      if (typed.endsWith("miau")) { catAlert(); catJump(34); }
+    });
+
+    /* =========================================================
+       Música: villancicos de dominio público en chiptune,
+       sintetizados en vivo con Web Audio (sin archivos).
+       ========================================================= */
+    const Music = (() => {
+      const SEMI = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
+      const hz = (n) => {
+        const m = /^([A-G])(#|b)?(\d)$/.exec(n);
+        const s = SEMI[m[1]] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0) + (m[3] - 4) * 12;
+        return 440 * 2 ** (s / 12);
+      };
+      const parse = (str) => str.trim().split(/\s+/).map((tok) => { const [n, b] = tok.split(":"); return [n, Number(b)]; });
+      const ROOT = { G: "G2", C: "C3", D: "D3", A: "A2", B: "B2", E: "E3" };
+
+      const L1 = "D5:1.5 C5:.5 B4:1 A4:1 G4:1 A4:1 B4:1 G4:1 A4:.5 B4:.5 C5:.5 A4:.5 B4:1.5 A4:.5 G4:1 F#4:1 G4:2";
+      const SONGS = [
+        {
+          name: "Jingle Bells",
+          bpm: 132, bar: 4, bells: 0.5,
+          melody: parse(`
+            B4:1 B4:1 B4:2 B4:1 B4:1 B4:2 B4:1 D5:1 G4:1.5 A4:.5 B4:4
+            C5:1 C5:1 C5:1.5 C5:.5 C5:1 B4:1 B4:1 B4:.5 B4:.5 B4:1 A4:1 A4:1 B4:1 A4:2 D5:2
+            B4:1 B4:1 B4:2 B4:1 B4:1 B4:2 B4:1 D5:1 G4:1.5 A4:.5 B4:4
+            C5:1 C5:1 C5:1.5 C5:.5 C5:1 B4:1 B4:1 B4:.5 B4:.5 D5:1 D5:1 C5:1 A4:1 G4:4`),
+          chords: "G G G G C G D D G G G G C G D G",
+        },
+        {
+          name: "Deck the Halls",
+          bpm: 120, bar: 4, bells: 1,
+          melody: parse(`${L1} ${L1}
+            A4:1.5 B4:.5 C5:1 A4:1 B4:1.5 C5:.5 D5:1 A4:1 B4:.5 C#5:.5 D5:1 E5:.5 F#5:.5 G5:1 F#5:1 E5:1 D5:2
+            D5:1.5 C5:.5 B4:1 A4:1 G4:1 A4:1 B4:1 G4:1 E5:.5 E5:.5 E5:.5 E5:.5 D5:1.5 C5:.5 B4:1 A4:1 G4:2`),
+          chords: "G G D G G G D G D D A D G G C G",
+        },
+        {
+          name: "We Wish You a Merry Christmas",
+          bpm: 138, bar: 3, bells: 1, pickup: 1, transpose: 12,
+          melody: parse(`
+            D4:1 G4:1 G4:.5 A4:.5 G4:.5 F#4:.5 E4:1 E4:1 E4:1
+            A4:1 A4:.5 B4:.5 A4:.5 G4:.5 F#4:1 D4:1 D4:1
+            B4:1 B4:.5 C5:.5 B4:.5 A4:.5 G4:1 E4:1 D4:.5 D4:.5 E4:1 A4:1 F#4:1 G4:3`),
+          chords: "G C A D B C D G",
+          repeat: 2,
+        },
+      ];
+
+      let ac = null, master, bus, noise, playing = false, songIdx = 0, nextStart = 0, pumpTimer = 0, sleepTimer = 0;
+
+      function init() {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+        master = ac.createGain();
+        master.gain.value = 0;
+        const lp = ac.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.frequency.value = 3000; // soft, pastel tone
+        bus = ac.createGain();
+        bus.connect(lp);
+        lp.connect(master);
+        // a little room echo
+        const delay = ac.createDelay();
+        delay.delayTime.value = 0.32;
+        const fb = ac.createGain();
+        fb.gain.value = 0.22;
+        const wet = ac.createGain();
+        wet.gain.value = 0.22;
+        lp.connect(delay);
+        delay.connect(fb);
+        fb.connect(delay);
+        delay.connect(wet);
+        wet.connect(master);
+        master.connect(ac.destination);
+        // white noise for sleigh bells
+        noise = ac.createBuffer(1, ac.sampleRate * 0.2, ac.sampleRate);
+        const d = noise.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+
+      function tone(f, t, dur, type, vol, decay = 0.12) {
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        o.type = type;
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.008);
+        g.gain.setTargetAtTime(vol * 0.55, t + 0.01, decay);
+        g.gain.setTargetAtTime(0, t + dur, 0.03);
+        o.connect(g);
+        g.connect(bus);
+        o.start(t);
+        o.stop(t + dur + 0.25);
+      }
+      function bell(t, vol) {
+        const src = ac.createBufferSource();
+        src.buffer = noise;
+        const hp = ac.createBiquadFilter();
+        hp.type = "highpass";
+        hp.frequency.value = 7000;
+        const g = ac.createGain();
+        g.gain.setValueAtTime(vol, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+        src.connect(hp);
+        hp.connect(g);
+        g.connect(bus);
+        src.start(t);
+        src.stop(t + 0.12);
+      }
+
+      function scheduleSong(song, t0) {
+        const spb = 60 / song.bpm;
+        const shift = 2 ** ((song.transpose || 0) / 12);
+        const reps = song.repeat || 1;
+        const melBeats = song.melody.reduce((a, [, b]) => a + b, 0);
+        const chords = song.chords.split(" ");
+        let t = t0;
+        for (let r = 0; r < reps; r++) {
+          const lead = song.pickup || 0; // melody starts before the first bar
+          let mt = t;
+          song.melody.forEach(([n, b]) => {
+            const f = hz(n) * shift;
+            const dur = b * spb * 0.88;
+            tone(f, mt, dur, "square", 0.05);
+            tone(f * 2, mt, Math.min(dur, 0.35), "sine", 0.03, 0.08); // glockenspiel sparkle
+            mt += b * spb;
+          });
+          // bass: oom-pah on chord roots
+          let bt = t + lead * spb;
+          chords.forEach((c) => {
+            const root = hz(ROOT[c]);
+            for (let k = 0; k < song.bar; k++) {
+              const f = song.bar === 4 ? [root, root * 1.5, root * 2, root * 1.5][k] : [root, root * 1.5, root * 1.5][k];
+              tone(f, bt + k * spb, spb * 0.7, "triangle", k === 0 ? 0.16 : 0.1, 0.15);
+            }
+            bt += song.bar * spb;
+          });
+          // sleigh bells
+          const total = (lead + chords.length * song.bar) * spb;
+          for (let s = 0; s < total - 0.01; s += spb * song.bells) {
+            const onBeat = Math.abs(s / spb - Math.round(s / spb)) < 0.01;
+            bell(t + s, onBeat ? 0.05 : 0.025);
+          }
+          t += melBeats * spb;
+        }
+        return t + 2 * (60 / song.bpm); // short breath between songs
+      }
+
+      function pump() {
+        if (!playing) return;
+        while (ac.currentTime > nextStart - 2) {
+          nextStart = scheduleSong(SONGS[songIdx % SONGS.length], Math.max(nextStart, ac.currentTime + 0.1));
+          songIdx++;
+        }
+      }
+
+      return {
+        get playing() { return playing; },
+        start() {
+          if (!ac) init();
+          clearTimeout(sleepTimer);
+          ac.resume();
+          playing = true;
+          if (nextStart < ac.currentTime) nextStart = ac.currentTime + 0.15;
+          pump();
+          clearInterval(pumpTimer);
+          pumpTimer = setInterval(pump, 500);
+          master.gain.cancelScheduledValues(ac.currentTime);
+          master.gain.setTargetAtTime(0.42, ac.currentTime, 0.5);
+        },
+        stop() {
+          if (!ac) return;
+          playing = false;
+          clearInterval(pumpTimer);
+          master.gain.cancelScheduledValues(ac.currentTime);
+          master.gain.setTargetAtTime(0, ac.currentTime, 0.08);
+          sleepTimer = setTimeout(() => ac.suspend(), 400);
+        },
+        pause() { if (ac && playing) ac.suspend(); },
+        resume() { if (ac && playing) ac.resume(); },
+      };
+    })();
+
+    const MUSIC_ICON = {
+      on: svgSprite(
+        ["....X...B...", "...XX.A..B..", "XXXXX..A..B.", "XXXXX..A..B.", "XXXXX..A..B.", "...XX.A..B..", "....X...B..."],
+        { px: 3, outline: false, palette: { X: INK, A: INK, B: INK }, classes: { A: "wa", B: "wb" } }
+      ),
+      off: svgSprite(
+        ["....X.......", "...XX.Z...Z.", "XXXXX..Z.Z..", "XXXXX...Z...", "XXXXX..Z.Z..", "...XX.Z...Z.", "....X......."],
+        { px: 3, outline: false, palette: { X: INK, Z: "#e2848f" } }
+      ),
+    };
+    const pref = {
+      get() { try { return localStorage.getItem("wl-music"); } catch { return null; } },
+      set(v) { try { localStorage.setItem("wl-music", v); } catch {} },
+    };
+    function musicUI() {
+      const on = Music.playing;
+      $("music").classList.toggle("on", on);
+      $("music").setAttribute("aria-pressed", String(on));
+      $("music").innerHTML = on ? MUSIC_ICON.on : MUSIC_ICON.off;
+    }
+    $("music").addEventListener("click", () => {
+      if (Music.playing) { Music.stop(); pref.set("off"); }
+      else { Music.start(); pref.set("on"); }
+      musicUI();
+    });
+    // browsers only allow sound after a gesture: start on the first tap/key anywhere
+    function autoStart(e) {
+      document.removeEventListener("pointerdown", autoStart);
+      document.removeEventListener("keydown", autoStart);
+      if (e.target.closest && e.target.closest("#music")) return;
+      if (pref.get() === "off") return;
+      Music.start();
+      musicUI();
+    }
+    document.addEventListener("pointerdown", autoStart);
+    document.addEventListener("keydown", autoStart);
+    document.addEventListener("visibilitychange", () => (document.hidden ? Music.pause() : Music.resume()));
+    musicUI();
+
+    function catRain() {
+      catAlert(3000);
+      if (reduceMotion.matches) return;
+      const mini = svgSprite(ROWS.cat, { px: 2 });
+      for (let i = 0; i < 28; i++) {
+        const c = document.createElement("div");
+        c.innerHTML = mini;
+        $("fx").appendChild(c);
+        const x = Math.random() * (window.innerWidth - 36);
+        const rot = (Math.random() - 0.5) * 720;
+        c.animate(
+          [
+            { transform: `translate(${x}px, -60px) rotate(0)` },
+            { transform: `translate(${x + (Math.random() - 0.5) * 80}px, ${window.innerHeight + 60}px) rotate(${rot}deg)` },
+          ],
+          { duration: 1800 + Math.random() * 1600, delay: Math.random() * 1200, easing: "cubic-bezier(0.4, 0, 0.8, 1)", fill: "backwards" }
+        ).onfinish = () => c.remove();
+      }
+    }
+  </script>
+</body>
+</html>
