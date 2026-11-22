@@ -202,6 +202,7 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
+      overflow-x: hidden;
       overscroll-behavior: contain;
       /* room for the thumbnails' pixel borders and the scrollbar */
       margin: 20px -14px 0 -4px;
@@ -288,7 +289,7 @@
     }
     .item {
       display: grid;
-      grid-template-columns: 80px 1fr;
+      grid-template-columns: 80px minmax(0, 1fr);
       gap: 20px;
       align-items: center;
       color: inherit;
@@ -306,10 +307,13 @@
         0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink),
         -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
     }
-    .thumb canvas {
+    /* product photos: shown as-is on white (most shop photos have a white background) */
+    .thumb.has-img { background: #fff; }
+    .thumb img {
       width: 100%;
       height: 100%;
-      image-rendering: pixelated;
+      padding: 5px;
+      object-fit: contain;
       display: block;
     }
     .thumb svg { display: block; }
@@ -320,6 +324,7 @@
       gap: 14px;
       min-width: 0;
     }
+    .info > div { min-width: 0; overflow-wrap: break-word; }
     .name {
       margin: 0;
       font-size: 16px;
@@ -347,7 +352,7 @@
     @media (max-width: 480px) {
       main { padding: 110px 20px 84px; } /* bottom: clear the music button */
       .card { padding: 50px 18px 16px; }
-      .item { grid-template-columns: 66px 1fr; gap: 16px; }
+      .item { grid-template-columns: 66px minmax(0, 1fr); gap: 16px; }
       .thumb { width: 60px; height: 60px; }
       .thumb svg { width: 39px; height: auto; }
       .info { flex-direction: column; gap: 8px; }
@@ -448,7 +453,7 @@
           <h1>Daryl's wishlist <span id="holly" aria-hidden="true"></span></h1>
           <button class="countdown" id="countdown" type="button"></button>
           <button class="sort" id="sort" type="button" data-dir="desc" aria-label="Ordenar por precio: de mayor a menor">
-            <span id="sort-label">High to low</span>
+            <span id="sort-label">Mayor a menor</span>
             <span id="sort-icon"></span>
           </button>
         </header>
@@ -1973,15 +1978,12 @@
     const money = (n, cur = "MXN") =>
       `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${esc(cur)}`;
 
-    function pixelate(canvas, src) {
-      const img = new Image();
-      img.onload = () => {
-        const g = canvas.getContext("2d");
-        const s = Math.min(img.naturalWidth, img.naturalHeight);
-        g.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, canvas.width, canvas.height);
-      };
-      img.onerror = () => { canvas.outerHTML = thumbGift; };
-      img.src = src;
+    // if a product photo fails to load, show the pixel gift instead
+    function fallbackToGift(img) {
+      img.addEventListener("error", () => {
+        img.parentElement.classList.remove("has-img");
+        img.outerHTML = thumbGift;
+      }, { once: true });
     }
 
     function renderList() {
@@ -2007,16 +2009,16 @@
           <ul class="group-items">${its.map(renderItem).join("")}</ul>
         </li>`)
         .join("");
-      list.querySelectorAll("canvas[data-src]").forEach((c) => pixelate(c, c.dataset.src));
+      list.querySelectorAll(".thumb img").forEach(fallbackToGift);
     }
 
     function renderItem(it) {
       const tag = it.link ? "a" : "div";
       const attrs = it.link ? ` href="${esc(it.link)}" target="_blank" rel="noopener noreferrer"` : "";
-      const img = it.image ? `<canvas width="44" height="44" data-src="${esc(it.image)}"></canvas>` : thumbGift;
+      const img = it.image ? `<img src="${esc(it.image)}" alt="" loading="lazy" decoding="async">` : thumbGift;
       return `<li>
         <${tag} class="item"${attrs}>
-          <div class="thumb">${img}</div>
+          <div class="thumb${it.image ? " has-img" : ""}">${img}</div>
           <div class="info">
             <div>
               <p class="name">${it.favorite ? `<span class="fav" title="Favorito">${heartSvg}<span class="sr-only">Favorito: </span></span>` : ""}${esc(it.name)}${it.link ? arrowSvg : ""}</p>
@@ -2030,7 +2032,7 @@
 
     function renderSort() {
       const dir = $("sort").dataset.dir;
-      $("sort-label").textContent = dir === "desc" ? "High to low" : "Low to high";
+      $("sort-label").textContent = dir === "desc" ? "Mayor a menor" : "Menor a mayor";
       $("sort-icon").innerHTML = chevron(dir);
       $("sort").setAttribute("aria-label", dir === "desc" ? "Ordenar por precio: de mayor a menor" : "Ordenar por precio: de menor a mayor");
     }
